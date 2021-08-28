@@ -2,10 +2,11 @@ package queries
 
 import (
 	"Komentory/api/app/models"
-	"Komentory/api/pkg/repository"
 	"database/sql"
 	"fmt"
 	"time"
+
+	"github.com/Komentory/repository"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -39,7 +40,7 @@ func (q *UserQueries) GetUserByID(id uuid.UUID) (models.User, int, error) {
 		return user, fiber.StatusOK, nil
 	case sql.ErrNoRows:
 		// Return empty object and 404 error.
-		return user, fiber.StatusNotFound, fmt.Errorf(repository.NotFoundUserWithID)
+		return user, fiber.StatusNotFound, fmt.Errorf(repository.GenerateErrorMessage(404, "user", "id"))
 	default:
 		// Return empty object and 400 error.
 		return user, fiber.StatusBadRequest, err
@@ -68,7 +69,7 @@ func (q *UserQueries) GetUserByEmail(email string) (models.User, int, error) {
 		return user, fiber.StatusOK, nil
 	case sql.ErrNoRows:
 		// Return empty object and 404 error.
-		return user, fiber.StatusNotFound, fmt.Errorf(repository.NotFoundUserWithEmail)
+		return user, fiber.StatusNotFound, fmt.Errorf(repository.GenerateErrorMessage(404, "user", "email"))
 	default:
 		// Return empty object and 400 error.
 		return user, fiber.StatusBadRequest, err
@@ -97,7 +98,7 @@ func (q *UserQueries) GetUserByUsername(username string) (models.User, int, erro
 		return user, fiber.StatusOK, nil
 	case sql.ErrNoRows:
 		// Return empty object and 404 error.
-		return user, fiber.StatusNotFound, fmt.Errorf(repository.NotFoundUserWithUsername)
+		return user, fiber.StatusNotFound, fmt.Errorf(repository.GenerateErrorMessage(404, "user", "username"))
 	default:
 		// Return empty object and 400 error.
 		return user, fiber.StatusBadRequest, err

@@ -2,9 +2,10 @@ package queries
 
 import (
 	"Komentory/api/app/models"
-	"Komentory/api/pkg/repository"
 	"database/sql"
 	"fmt"
+
+	"github.com/Komentory/repository"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -39,7 +40,7 @@ func (q *TaskQueries) GetTaskByID(id uuid.UUID) (models.Task, int, error) {
 		return task, fiber.StatusOK, nil
 	case sql.ErrNoRows:
 		// Return empty object and 404 error.
-		return task, fiber.StatusNotFound, fmt.Errorf(repository.NotFoundTaskWithID)
+		return task, fiber.StatusNotFound, fmt.Errorf(repository.GenerateErrorMessage(404, "task", "id"))
 	default:
 		// Return empty object and 400 error.
 		return task, fiber.StatusBadRequest, err
@@ -69,7 +70,7 @@ func (q *TaskQueries) GetTasksByProjectID(project_id uuid.UUID) ([]models.Task, 
 		return tasks, fiber.StatusOK, nil
 	case sql.ErrNoRows:
 		// Return empty object and 404 error.
-		return tasks, fiber.StatusNotFound, fmt.Errorf(repository.NotFoundTasksByProject)
+		return tasks, fiber.StatusNotFound, fmt.Errorf(repository.GenerateErrorMessage(404, "task", "project_id"))
 	default:
 		// Return empty object and 400 error.
 		return tasks, fiber.StatusBadRequest, err

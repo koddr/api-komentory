@@ -2,9 +2,10 @@ package queries
 
 import (
 	"Komentory/api/app/models"
-	"Komentory/api/pkg/repository"
 	"database/sql"
 	"fmt"
+
+	"github.com/Komentory/repository"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -39,7 +40,7 @@ func (q *AnswerQueries) GetAnswerByID(id uuid.UUID) (models.Answer, int, error) 
 		return task, fiber.StatusOK, nil
 	case sql.ErrNoRows:
 		// Return empty object and 404 error.
-		return task, fiber.StatusNotFound, fmt.Errorf(repository.NotFoundAnswerWithID)
+		return task, fiber.StatusNotFound, fmt.Errorf(repository.GenerateErrorMessage(404, "answer", "id"))
 	default:
 		// Return empty object and 400 error.
 		return task, fiber.StatusBadRequest, err
@@ -69,7 +70,7 @@ func (q *AnswerQueries) GetAnswersByProjectID(project_id uuid.UUID) ([]models.An
 		return answers, fiber.StatusOK, nil
 	case sql.ErrNoRows:
 		// Return empty object and 404 error.
-		return answers, fiber.StatusNotFound, fmt.Errorf(repository.NotFoundAnswersByProject)
+		return answers, fiber.StatusNotFound, fmt.Errorf(repository.GenerateErrorMessage(404, "answer", "project_id"))
 	default:
 		// Return empty object and 400 error.
 		return answers, fiber.StatusBadRequest, err
@@ -99,7 +100,7 @@ func (q *AnswerQueries) GetAnswersByTaskID(task_id uuid.UUID) ([]models.Answer, 
 		return answers, fiber.StatusOK, nil
 	case sql.ErrNoRows:
 		// Return empty object and 404 error.
-		return answers, fiber.StatusNotFound, fmt.Errorf(repository.NotFoundAnswersByTask)
+		return answers, fiber.StatusNotFound, fmt.Errorf(repository.GenerateErrorMessage(404, "answer", "task_id"))
 	default:
 		// Return empty object and 400 error.
 		return answers, fiber.StatusBadRequest, err
