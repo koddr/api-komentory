@@ -2,10 +2,11 @@ package controllers
 
 import (
 	"Komentory/api/app/models"
-	"Komentory/api/pkg/repository"
 	"Komentory/api/pkg/utils"
 	"Komentory/api/platform/database"
 	"time"
+
+	"github.com/Komentory/repository"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -140,7 +141,7 @@ func GetAnswersByTaskID(c *fiber.Ctx) error {
 func CreateAnswer(c *fiber.Ctx) error {
 	// Set needed credentials.
 	credentials := []string{
-		repository.AnswerCreateCredential,
+		repository.GenerateCredential("answers", "create", false),
 	}
 
 	// Validate JWT token.
@@ -241,7 +242,7 @@ func CreateAnswer(c *fiber.Ctx) error {
 func UpdateAnswer(c *fiber.Ctx) error {
 	// Set needed credentials.
 	credentials := []string{
-		repository.AnswerOwnUpdateCredential,
+		repository.GenerateCredential("answers", "update", true),
 	}
 
 	// Validate JWT token.
@@ -290,7 +291,7 @@ func UpdateAnswer(c *fiber.Ctx) error {
 	// Set user ID from JWT data of current user.
 	userID := claims.UserID
 
-	// Only the creator can delete his task.
+	// Only the creator can update his task.
 	if foundedAnswer.UserID == userID {
 		// Set initialized default data for task:
 		task.UpdatedAt = time.Now()
@@ -329,7 +330,7 @@ func UpdateAnswer(c *fiber.Ctx) error {
 		// Return status 403 and permission denied error message.
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": true,
-			"msg":   repository.PermissionDeniedUpdateAnswer,
+			"msg":   repository.GenerateErrorMessage(403, "user", "it's not your task"),
 			"task":  nil,
 		})
 	}
@@ -339,7 +340,7 @@ func UpdateAnswer(c *fiber.Ctx) error {
 func DeleteAnswer(c *fiber.Ctx) error {
 	// Set needed credentials.
 	credentials := []string{
-		repository.AnswerOwnDeleteCredential,
+		repository.GenerateCredential("answers", "delete", true),
 	}
 
 	// Validate JWT token.
@@ -416,7 +417,7 @@ func DeleteAnswer(c *fiber.Ctx) error {
 		// Return status 403 and permission denied error message.
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": true,
-			"msg":   repository.PermissionDeniedDeleteAnswer,
+			"msg":   repository.GenerateErrorMessage(403, "user", "it's not your task"),
 		})
 	}
 }

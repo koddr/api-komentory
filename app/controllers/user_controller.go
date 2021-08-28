@@ -2,9 +2,10 @@ package controllers
 
 import (
 	"Komentory/api/app/models"
-	"Komentory/api/pkg/repository"
 	"Komentory/api/pkg/utils"
 	"Komentory/api/platform/database"
+
+	"github.com/Komentory/repository"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -13,7 +14,7 @@ import (
 func UpdateUserPassword(c *fiber.Ctx) error {
 	// Set needed credentials.
 	credentials := []string{
-		repository.UserOwnUpdateCredential,
+		repository.GenerateCredential("users", "update", true),
 	}
 
 	// Validate JWT token.
@@ -80,7 +81,7 @@ func UpdateUserPassword(c *fiber.Ctx) error {
 		// Return status 403, if password is not compare to stored in database.
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": true,
-			"msg":   repository.PasswordsDoesNotMatch,
+			"msg":   repository.GenerateErrorMessage(403, "user", "email or password"),
 		})
 	}
 
@@ -104,7 +105,7 @@ func UpdateUserPassword(c *fiber.Ctx) error {
 func UpdateUserAttrs(c *fiber.Ctx) error {
 	// Set needed credentials.
 	credentials := []string{
-		repository.UserOwnUpdateCredential,
+		repository.GenerateCredential("users", "update", true),
 	}
 
 	// Validate JWT token.

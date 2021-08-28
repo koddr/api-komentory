@@ -2,9 +2,10 @@ package queries
 
 import (
 	"Komentory/api/app/models"
-	"Komentory/api/pkg/repository"
 	"database/sql"
 	"fmt"
+
+	"github.com/Komentory/repository"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -62,7 +63,7 @@ func (q *ProjectQueries) GetProjectsByUserID(user_id uuid.UUID) ([]models.Projec
 		return project, fiber.StatusOK, nil
 	case sql.ErrNoRows:
 		// Return empty object and 404 error.
-		return project, fiber.StatusNotFound, fmt.Errorf(repository.NotFoundProjectsByUser)
+		return project, fiber.StatusNotFound, fmt.Errorf(repository.GenerateErrorMessage(404, "project", "user_id"))
 	default:
 		// Return empty object and 400 error.
 		return project, fiber.StatusBadRequest, err
@@ -92,7 +93,7 @@ func (q *ProjectQueries) GetProjectByID(id uuid.UUID) (models.Project, int, erro
 		return project, fiber.StatusOK, nil
 	case sql.ErrNoRows:
 		// Return empty object and 404 error.
-		return project, fiber.StatusNotFound, fmt.Errorf(repository.NotFoundProjectWithID)
+		return project, fiber.StatusNotFound, fmt.Errorf(repository.GenerateErrorMessage(404, "project", "id"))
 	default:
 		// Return empty object and 400 error.
 		return project, fiber.StatusBadRequest, err
@@ -122,7 +123,7 @@ func (q *ProjectQueries) GetProjectByAlias(alias string) (models.Project, int, e
 		return project, fiber.StatusOK, nil
 	case sql.ErrNoRows:
 		// Return empty object and 404 error.
-		return project, fiber.StatusNotFound, fmt.Errorf(repository.NotFoundProjectWithAlias)
+		return project, fiber.StatusNotFound, fmt.Errorf(repository.GenerateErrorMessage(404, "project", "alias"))
 	default:
 		// Return empty object and 400 error.
 		return project, fiber.StatusBadRequest, err

@@ -2,10 +2,11 @@ package controllers
 
 import (
 	"Komentory/api/app/models"
-	"Komentory/api/pkg/repository"
 	"Komentory/api/pkg/utils"
 	"Komentory/api/platform/database"
 	"time"
+
+	"github.com/Komentory/repository"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -98,7 +99,7 @@ func GetTasksByProjectID(c *fiber.Ctx) error {
 func CreateTask(c *fiber.Ctx) error {
 	// Set needed credentials.
 	credentials := []string{
-		repository.TaskCreateCredential,
+		repository.GenerateCredential("tasks", "create", false),
 	}
 
 	// Validate JWT token.
@@ -187,7 +188,7 @@ func CreateTask(c *fiber.Ctx) error {
 		// Return status 403 and permission denied error message.
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": true,
-			"msg":   repository.PermissionDeniedCreateTask,
+			"msg":   repository.GenerateErrorMessage(403, "user", "it's not your task"),
 			"task":  nil,
 		})
 	}
@@ -197,7 +198,7 @@ func CreateTask(c *fiber.Ctx) error {
 func UpdateTask(c *fiber.Ctx) error {
 	// Set needed credentials.
 	credentials := []string{
-		repository.TaskOwnUpdateCredential,
+		repository.GenerateCredential("tasks", "update", true),
 	}
 
 	// Validate JWT token.
@@ -284,7 +285,7 @@ func UpdateTask(c *fiber.Ctx) error {
 		// Return status 403 and permission denied error message.
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": true,
-			"msg":   repository.PermissionDeniedUpdateTask,
+			"msg":   repository.GenerateErrorMessage(403, "user", "it's not your task"),
 			"task":  nil,
 		})
 	}
@@ -294,7 +295,7 @@ func UpdateTask(c *fiber.Ctx) error {
 func DeleteTask(c *fiber.Ctx) error {
 	// Set needed credentials.
 	credentials := []string{
-		repository.TaskOwnDeleteCredential,
+		repository.GenerateCredential("tasks", "delete", true),
 	}
 
 	// Validate JWT token.
@@ -371,7 +372,7 @@ func DeleteTask(c *fiber.Ctx) error {
 		// Return status 403 and permission denied error message.
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": true,
-			"msg":   repository.PermissionDeniedDeleteTask,
+			"msg":   repository.GenerateErrorMessage(403, "user", "it's not your task"),
 		})
 	}
 }
