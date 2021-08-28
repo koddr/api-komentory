@@ -9,8 +9,10 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/h2non/filetype"
 )
 
@@ -126,4 +128,23 @@ func GetFileSize(pathToFile string) (int64, error) {
 
 	// Return file size in bytes.
 	return fileStat.Size(), nil
+}
+
+// GetUserIDFromCDNFileKey func for getting the user ID from CDN file key.
+func GetUserIDFromCDNFileKey(key string) (string, error) {
+	// Split given key to string slice.
+	splitKey := strings.Split(key, "/")
+
+	// Check, if key has a user ID.
+	if len(splitKey) < 1 {
+		return "", fmt.Errorf("wrong key format (%s)", key)
+	}
+
+	// Check, if user ID is a valid UUID string.
+	_, err := uuid.Parse(splitKey[1])
+	if err != nil {
+		return "", fmt.Errorf("wrong user ID (%s)", splitKey[1])
+	}
+
+	return splitKey[1], nil
 }
