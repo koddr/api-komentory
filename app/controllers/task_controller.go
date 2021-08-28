@@ -41,7 +41,6 @@ func GetTaskByID(c *fiber.Ctx) error {
 		return c.Status(status).JSON(fiber.Map{
 			"error": true,
 			"msg":   errGetTaskByID.Error(),
-			"task":  nil,
 		})
 	}
 
@@ -82,7 +81,6 @@ func GetTasksByProjectID(c *fiber.Ctx) error {
 		return c.Status(status).JSON(fiber.Map{
 			"error": true,
 			"msg":   errGetTasksByProjectID.Error(),
-			"tasks": nil,
 		})
 	}
 
@@ -141,7 +139,6 @@ func CreateTask(c *fiber.Ctx) error {
 		return c.Status(status).JSON(fiber.Map{
 			"error": true,
 			"msg":   errGetProjectByID.Error(),
-			"task":  nil,
 		})
 	}
 
@@ -189,7 +186,6 @@ func CreateTask(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": true,
 			"msg":   repository.GenerateErrorMessage(403, "user", "it's not your task"),
-			"task":  nil,
 		})
 	}
 }
@@ -240,7 +236,6 @@ func UpdateTask(c *fiber.Ctx) error {
 		return c.Status(status).JSON(fiber.Map{
 			"error": true,
 			"msg":   errGetTaskByID.Error(),
-			"task":  nil,
 		})
 	}
 
@@ -286,7 +281,6 @@ func UpdateTask(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": true,
 			"msg":   repository.GenerateErrorMessage(403, "user", "it's not your task"),
-			"task":  nil,
 		})
 	}
 }

@@ -30,10 +30,8 @@ func GetProjects(c *fiber.Ctx) error {
 	if errGetProjects != nil {
 		// Return status 400 and bad request error.
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error":    true,
-			"msg":      errGetProjects.Error(),
-			"count":    0,
-			"projects": nil,
+			"error": true,
+			"msg":   errGetProjects.Error(),
 		})
 	}
 
@@ -73,9 +71,8 @@ func GetProjectsByUserID(c *fiber.Ctx) error {
 	if errGetProjectsByUserID != nil {
 		// Return status and error message.
 		return c.Status(status).JSON(fiber.Map{
-			"error":   true,
-			"msg":     errGetProjectsByUserID.Error(),
-			"project": nil,
+			"error": true,
+			"msg":   errGetProjectsByUserID.Error(),
 		})
 	}
 
@@ -108,9 +105,8 @@ func GetProjectByAlias(c *fiber.Ctx) error {
 	if errGetProjectByAlias != nil {
 		// Return status and error message.
 		return c.Status(status).JSON(fiber.Map{
-			"error":   true,
-			"msg":     errGetProjectByAlias.Error(),
-			"project": nil,
+			"error": true,
+			"msg":   errGetProjectByAlias.Error(),
 		})
 	}
 
@@ -241,9 +237,8 @@ func UpdateProject(c *fiber.Ctx) error {
 	if errGetProjectByID != nil {
 		// Return status and error message.
 		return c.Status(status).JSON(fiber.Map{
-			"error":   true,
-			"msg":     errGetProjectByID.Error(),
-			"project": nil,
+			"error": true,
+			"msg":   errGetProjectByID.Error(),
 		})
 	}
 
@@ -286,9 +281,8 @@ func UpdateProject(c *fiber.Ctx) error {
 	} else {
 		// Return status 403 and permission denied error message.
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
-			"error":   true,
-			"msg":     repository.GenerateErrorMessage(403, "user", "it's not your project"),
-			"project": nil,
+			"error": true,
+			"msg":   repository.GenerateErrorMessage(403, "user", "it's not your project"),
 		})
 	}
 }
@@ -349,9 +343,8 @@ func DeleteProject(c *fiber.Ctx) error {
 	if errGetProjectByID != nil {
 		// Return status and error message.
 		return c.Status(status).JSON(fiber.Map{
-			"error":   true,
-			"msg":     errGetProjectByID.Error(),
-			"project": nil,
+			"error": true,
+			"msg":   errGetProjectByID.Error(),
 		})
 	}
 

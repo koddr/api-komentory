@@ -39,9 +39,8 @@ func GetAnswerByID(c *fiber.Ctx) error {
 	if errGetAnswerByID != nil {
 		// Return status and error message.
 		return c.Status(status).JSON(fiber.Map{
-			"error":  true,
-			"msg":    errGetAnswerByID.Error(),
-			"answer": nil,
+			"error": true,
+			"msg":   errGetAnswerByID.Error(),
 		})
 	}
 
@@ -80,9 +79,8 @@ func GetAnswersByProjectID(c *fiber.Ctx) error {
 	if errGetAnswersByProjectID != nil {
 		// Return status and error message.
 		return c.Status(status).JSON(fiber.Map{
-			"error":   true,
-			"msg":     errGetAnswersByProjectID.Error(),
-			"answers": nil,
+			"error": true,
+			"msg":   errGetAnswersByProjectID.Error(),
 		})
 	}
 
@@ -122,9 +120,8 @@ func GetAnswersByTaskID(c *fiber.Ctx) error {
 	if errGetAnswersByTaskID != nil {
 		// Return status and error message.
 		return c.Status(status).JSON(fiber.Map{
-			"error":   true,
-			"msg":     errGetAnswersByTaskID.Error(),
-			"answers": nil,
+			"error": true,
+			"msg":   errGetAnswersByTaskID.Error(),
 		})
 	}
 
@@ -181,9 +178,8 @@ func CreateAnswer(c *fiber.Ctx) error {
 	if errGetProjectByID != nil {
 		// Return status and error message.
 		return c.Status(status).JSON(fiber.Map{
-			"error":  true,
-			"msg":    errGetProjectByID.Error(),
-			"answer": nil,
+			"error": true,
+			"msg":   errGetProjectByID.Error(),
 		})
 	}
 
@@ -192,9 +188,8 @@ func CreateAnswer(c *fiber.Ctx) error {
 	if errGetTaskByID != nil {
 		// Return status and error message.
 		return c.Status(status).JSON(fiber.Map{
-			"error":  true,
-			"msg":    errGetTaskByID.Error(),
-			"answer": nil,
+			"error": true,
+			"msg":   errGetTaskByID.Error(),
 		})
 	}
 
@@ -284,7 +279,6 @@ func UpdateAnswer(c *fiber.Ctx) error {
 		return c.Status(status).JSON(fiber.Map{
 			"error": true,
 			"msg":   errGetAnswerByID.Error(),
-			"task":  nil,
 		})
 	}
 
@@ -331,7 +325,6 @@ func UpdateAnswer(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": true,
 			"msg":   repository.GenerateErrorMessage(403, "user", "it's not your task"),
-			"task":  nil,
 		})
 	}
 }

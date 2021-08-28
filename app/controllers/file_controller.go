@@ -30,9 +30,8 @@ func GetFileListFromCDN(c *fiber.Ctx) error {
 	if errDOSpacesConnection != nil {
 		// Return status 500 and CDN connection error.
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error":  true,
-			"msg":    errDOSpacesConnection.Error(),
-			"object": nil,
+			"error": true,
+			"msg":   errDOSpacesConnection.Error(),
 		})
 	}
 
@@ -59,9 +58,8 @@ func GetFileListFromCDN(c *fiber.Ctx) error {
 		if object.Err != nil {
 			// Return status 400 and bad request error.
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error":  true,
-				"msg":    object.Err,
-				"object": nil,
+				"error": true,
+				"msg":   object.Err,
 			})
 		}
 
@@ -113,8 +111,6 @@ func PutImageFileToCDN(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": true,
 			"msg":   err.Error(),
-			"info":  nil,
-			"url":   "",
 		})
 	}
 
@@ -125,8 +121,6 @@ func PutImageFileToCDN(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": true,
 			"msg":   errDOSpacesConnection.Error(),
-			"info":  nil,
-			"url":   "",
 		})
 	}
 
@@ -137,8 +131,6 @@ func PutImageFileToCDN(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": true,
 			"msg":   errUploadFileToCDN.Error(),
-			"info":  nil,
-			"url":   "",
 		})
 	}
 

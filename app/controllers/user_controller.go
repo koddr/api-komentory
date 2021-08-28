@@ -71,7 +71,6 @@ func UpdateUserPassword(c *fiber.Ctx) error {
 		return c.Status(status).JSON(fiber.Map{
 			"error": true,
 			"msg":   errGetUserByID.Error(),
-			"user":  nil,
 		})
 	}
 
@@ -147,7 +146,6 @@ func UpdateUserAttrs(c *fiber.Ctx) error {
 		return c.Status(status).JSON(fiber.Map{
 			"error": true,
 			"msg":   errGetUserByID.Error(),
-			"user":  nil,
 		})
 	}
 
@@ -161,13 +159,6 @@ func UpdateUserAttrs(c *fiber.Ctx) error {
 		})
 	}
 
-	// Return status 200 OK.
-	return c.JSON(fiber.Map{
-		"error": false,
-		"msg":   nil,
-		"user": fiber.Map{
-			"id":         foundedUser.ID,
-			"user_attrs": userAttrs,
-		},
-	})
+	// Return status 204 no content.
+	return c.SendStatus(fiber.StatusNoContent)
 }
