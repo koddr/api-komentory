@@ -1,7 +1,7 @@
 package cdn
 
 import (
-	"Komentory/api/pkg/utils"
+	"Komentory/api/pkg/helpers"
 	"context"
 	"fmt"
 	"os"
@@ -65,14 +65,14 @@ func UploadFileToCDN(minioClient *minio.Client, pathToFile, fileType, userID str
 	defer file.Close() // auto close file
 
 	// Generate a new file name.
-	newFileName, errGenerateFileName := utils.GenerateFileName(userID)
+	newFileName, errGenerateFileName := helpers.GenerateFileName(userID)
 	if errGenerateFileName != nil {
 		// Return empty info and error message.
 		return minio.UploadInfo{}, errGenerateFileName
 	}
 
 	// Get file info.
-	fileInfo, errGetFileInfo := utils.GetLocalFileInfo(filepath.Clean(pathToFile), fileType)
+	fileInfo, errGetFileInfo := helpers.GetLocalFileInfo(filepath.Clean(pathToFile), fileType)
 	if errGetFileInfo != nil {
 		// Return empty info and error message.
 		return minio.UploadInfo{}, errGetFileInfo

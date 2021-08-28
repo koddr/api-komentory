@@ -3,12 +3,11 @@ module Komentory/api
 go 1.17
 
 require (
-	github.com/Komentory/repository v0.0.2
-	github.com/go-playground/validator/v10 v10.9.0
+	github.com/Komentory/repository v0.0.3
+	github.com/Komentory/utilities v0.0.1
 	github.com/go-redis/redis/v8 v8.11.3
 	github.com/gofiber/fiber/v2 v2.18.0
 	github.com/gofiber/jwt/v2 v2.2.7
-	github.com/golang-jwt/jwt/v4 v4.0.0
 	github.com/google/uuid v1.3.0
 	github.com/h2non/filetype v1.1.1
 	github.com/jackc/pgx/v4 v4.13.0
@@ -16,7 +15,6 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/minio/minio-go/v7 v7.0.13
 	github.com/stretchr/testify v1.7.0
-	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
 )
 
 require (
@@ -27,6 +25,8 @@ require (
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
+	github.com/go-playground/validator/v10 v10.9.0 // indirect
+	github.com/golang-jwt/jwt/v4 v4.0.0 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.10.0 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
@@ -49,6 +49,7 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.29.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
+	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 // indirect
 	golang.org/x/net v0.0.0-20210825183410-e898025ed96a // indirect
 	golang.org/x/sys v0.0.0-20210823070655-63515b42dcdf // indirect
 	golang.org/x/text v0.3.7 // indirect

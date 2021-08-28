@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"Komentory/api/app/models"
-	"Komentory/api/pkg/utils"
 	"Komentory/api/platform/database"
 
 	"github.com/Komentory/repository"
+	"github.com/Komentory/utilities"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -18,7 +18,7 @@ func UpdateUserPassword(c *fiber.Ctx) error {
 	}
 
 	// Validate JWT token.
-	claims, errTokenValidate := utils.TokenValidateExpireTimeAndCredentials(c, credentials)
+	claims, errTokenValidate := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
 	if errTokenValidate != nil {
 		// Return status 401 and error message.
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -40,14 +40,14 @@ func UpdateUserPassword(c *fiber.Ctx) error {
 	}
 
 	// Create a new validator for a User model.
-	validate := utils.NewValidator()
+	validate := utilities.NewValidator()
 
 	// Validate sign up fields.
 	if err := validate.Struct(passwordChange); err != nil {
 		// Return, if some fields are not valid.
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": true,
-			"msg":   utils.ValidatorErrors(err),
+			"msg":   utilities.ValidatorErrors(err),
 		})
 	}
 
@@ -76,7 +76,7 @@ func UpdateUserPassword(c *fiber.Ctx) error {
 	}
 
 	// Compare given user password with stored in found user.
-	matchUserPasswords := utils.ComparePasswords(foundedUser.PasswordHash, passwordChange.OldPassword)
+	matchUserPasswords := utilities.ComparePasswords(foundedUser.PasswordHash, passwordChange.OldPassword)
 	if !matchUserPasswords {
 		// Return status 403, if password is not compare to stored in database.
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
@@ -86,7 +86,7 @@ func UpdateUserPassword(c *fiber.Ctx) error {
 	}
 
 	// Set initialized default data for user:
-	newPasswordHash := utils.GeneratePassword(passwordChange.NewPassword)
+	newPasswordHash := utilities.GeneratePassword(passwordChange.NewPassword)
 
 	// Create a new user with validated data.
 	if err := db.UpdateUserPassword(foundedUser.ID, newPasswordHash); err != nil {
@@ -109,7 +109,7 @@ func UpdateUserAttrs(c *fiber.Ctx) error {
 	}
 
 	// Validate JWT token.
-	claims, errTokenValidate := utils.TokenValidateExpireTimeAndCredentials(c, credentials)
+	claims, errTokenValidate := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
 	if errTokenValidate != nil {
 		// Return status 401 and error message.
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{

@@ -1,10 +1,10 @@
 package cache
 
 import (
-	"Komentory/api/pkg/utils"
 	"os"
 	"strconv"
 
+	"github.com/Komentory/utilities"
 	"github.com/go-redis/redis/v8"
 )
 
@@ -14,7 +14,7 @@ func RedisConnection() (*redis.Client, error) {
 	dbNumber, _ := strconv.Atoi(os.Getenv("REDIS_DB_NUMBER"))
 
 	// Build Redis connection URL.
-	redisConnURL, err := utils.ConnectionURLBuilder("redis")
+	redisConnURL, err := utilities.ConnectionURLBuilder("redis")
 	if err != nil {
 		return nil, err
 	}

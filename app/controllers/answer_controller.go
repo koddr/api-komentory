@@ -2,11 +2,11 @@ package controllers
 
 import (
 	"Komentory/api/app/models"
-	"Komentory/api/pkg/utils"
 	"Komentory/api/platform/database"
 	"time"
 
 	"github.com/Komentory/repository"
+	"github.com/Komentory/utilities"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -145,7 +145,7 @@ func CreateAnswer(c *fiber.Ctx) error {
 	}
 
 	// Validate JWT token.
-	claims, errTokenValidate := utils.TokenValidateExpireTimeAndCredentials(c, credentials)
+	claims, errTokenValidate := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
 	if errTokenValidate != nil {
 		// Return status 401 and error message.
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -202,7 +202,7 @@ func CreateAnswer(c *fiber.Ctx) error {
 	userID := claims.UserID
 
 	// Create a new validator for a Answer model.
-	validate := utils.NewValidator()
+	validate := utilities.NewValidator()
 
 	// Set initialized default data for answer:
 	answer.ID = uuid.New()
@@ -217,7 +217,7 @@ func CreateAnswer(c *fiber.Ctx) error {
 		// Return, if some fields are not valid.
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": true,
-			"msg":   utils.ValidatorErrors(err),
+			"msg":   utilities.ValidatorErrors(err),
 		})
 	}
 
@@ -246,7 +246,7 @@ func UpdateAnswer(c *fiber.Ctx) error {
 	}
 
 	// Validate JWT token.
-	claims, errTokenValidate := utils.TokenValidateExpireTimeAndCredentials(c, credentials)
+	claims, errTokenValidate := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
 	if errTokenValidate != nil {
 		// Return status 401 and error message.
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -300,14 +300,14 @@ func UpdateAnswer(c *fiber.Ctx) error {
 		task.TaskID = foundedAnswer.TaskID
 
 		// Create a new validator for a Answer model.
-		validate := utils.NewValidator()
+		validate := utilities.NewValidator()
 
 		// Validate project fields.
 		if err := validate.Struct(task); err != nil {
 			// Return 400, if some fields are not valid.
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"error": true,
-				"msg":   utils.ValidatorErrors(err),
+				"msg":   utilities.ValidatorErrors(err),
 			})
 		}
 
@@ -344,7 +344,7 @@ func DeleteAnswer(c *fiber.Ctx) error {
 	}
 
 	// Validate JWT token.
-	claims, errTokenValidate := utils.TokenValidateExpireTimeAndCredentials(c, credentials)
+	claims, errTokenValidate := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
 	if errTokenValidate != nil {
 		// Return status 401 and error message.
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -366,14 +366,14 @@ func DeleteAnswer(c *fiber.Ctx) error {
 	}
 
 	// Create a new validator for a Answer model.
-	validate := utils.NewValidator()
+	validate := utilities.NewValidator()
 
 	// Validate project fields.
 	if err := validate.StructPartial(project, "id"); err != nil {
 		// Return, if some fields are not valid.
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": true,
-			"msg":   utils.ValidatorErrors(err),
+			"msg":   utilities.ValidatorErrors(err),
 		})
 	}
 

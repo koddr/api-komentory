@@ -2,13 +2,13 @@ package controllers
 
 import (
 	"Komentory/api/app/models"
-	"Komentory/api/pkg/utils"
 	"Komentory/api/platform/cdn"
 	"context"
 	"fmt"
 	"os"
 	"strings"
 
+	"github.com/Komentory/utilities"
 	"github.com/gofiber/fiber/v2"
 	"github.com/minio/minio-go/v7"
 )
@@ -16,7 +16,7 @@ import (
 // GetFileListFromCDN func for return a list of files from CDN.
 func GetFileListFromCDN(c *fiber.Ctx) error {
 	// Get claims from JWT.
-	_, errExtractTokenMetaData := utils.ExtractTokenMetaData(c)
+	_, errExtractTokenMetaData := utilities.ExtractTokenMetaData(c)
 	if errExtractTokenMetaData != nil {
 		// Return status 500 and JWT parse error.
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -92,7 +92,7 @@ func GetFileListFromCDN(c *fiber.Ctx) error {
 // PutImageFileToCDN func for upload a file to CDN.
 func PutImageFileToCDN(c *fiber.Ctx) error {
 	// Get claims from JWT.
-	claims, errExtractTokenMetaData := utils.ExtractTokenMetaData(c)
+	claims, errExtractTokenMetaData := utilities.ExtractTokenMetaData(c)
 	if errExtractTokenMetaData != nil {
 		// Return status 500 and JWT parse error.
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -159,7 +159,7 @@ func PutImageFileToCDN(c *fiber.Ctx) error {
 // RemoveFileFromCDN func for remove exists file from CDN.
 func RemoveFileFromCDN(c *fiber.Ctx) error {
 	// Get claims from JWT.
-	_, errExtractTokenMetaData := utils.ExtractTokenMetaData(c)
+	_, errExtractTokenMetaData := utilities.ExtractTokenMetaData(c)
 	if errExtractTokenMetaData != nil {
 		// Return status 500 and JWT parse error.
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
