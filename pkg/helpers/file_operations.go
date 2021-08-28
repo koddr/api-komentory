@@ -16,61 +16,65 @@ import (
 
 // GetLocalFileInfo func for get local file's info (Content-Type, extension, size, etc).
 func GetLocalFileInfo(pathToFile, fileType string) (*models.LocalFileInfo, error) {
-	//
+	// Get file size.
 	fileSize, err := GetFileSize(pathToFile)
 	if err != nil {
-		// Throw error with message.
 		return nil, err
 	}
 
-	//
+	// Define maximum file size in bytes.
 	maxFileSize, err := strconv.ParseInt(os.Getenv("MAX_UPLOAD_FILE_SIZE"), 10, 64)
 	if err != nil {
-		// Throw error with message.
 		return nil, err
 	}
 
-	//
+	// If actual file size is greater than max file size, throw error.
 	if fileSize > maxFileSize {
-		// Throw error with message.
-		return nil, fmt.Errorf("file is too large for upload")
+		return nil, fmt.Errorf("file is too large for upload (%d bytes)", fileSize)
 	}
 
-	//
+	// Read given file from file system.
 	buf, err := ioutil.ReadFile(filepath.Clean(pathToFile))
 	if err != nil {
-		// Throw error with message.
 		return nil, err
 	}
 
-	//
-	switch fileType {
-	case "image":
-		if !filetype.IsImage(buf) {
-			// Throw error with message.
-			return nil, fmt.Errorf("only images are supported")
-		}
-	case "document":
-		if !filetype.IsDocument(buf) {
-			// Throw error with message.
-			return nil, fmt.Errorf("only images are supported")
-		}
-	default:
-		// Throw error with message.
-		return nil, fmt.Errorf("wrong or unsupported file type")
-	}
-
-	//
+	// Create matching for file in buffer.
 	kind, err := filetype.Match(buf)
 	if err != nil {
-		// Throw error with message.
 		return nil, err
 	}
 
-	//
+	// Check, if given file has an unknown type.
 	if kind == filetype.Unknown {
-		// Throw error with message.
-		return nil, fmt.Errorf("unknown file type")
+		return nil, fmt.Errorf("file has an unknown type")
+	}
+
+	// Switch file types.
+	switch fileType {
+	case "image":
+		// Check, if given file is image.
+		if !filetype.IsImage(buf) {
+			return nil, fmt.Errorf("only images are supported")
+		}
+
+		// Check, if given image is JPG, PNG, or SVG.
+		if kind.Extension != "jpg" && kind.Extension != "png" && kind.Extension != "svg" {
+			return nil, fmt.Errorf("only images with *.jpg, *.png, or *.svg extensions are supported")
+		}
+	case "document":
+		// Check, if file is document.
+		if !filetype.IsDocument(buf) {
+			return nil, fmt.Errorf("only documents are supported")
+		}
+
+		// Check, if given document is PDF.
+		if kind.Extension != "pdf" {
+			return nil, fmt.Errorf("only documents with *.pdf extension is supported")
+		}
+	default:
+		// Throw error, if file is not supported.
+		return nil, fmt.Errorf("wrong or unsupported file type (%s)", fileType)
 	}
 
 	// Return file info.
@@ -117,7 +121,7 @@ func GetFileSize(pathToFile string) (int64, error) {
 	// Check, if file size is zero.
 	if fileStat.Size() == 0 {
 		// Return error message.
-		return 0, fmt.Errorf("file have no size")
+		return 0, fmt.Errorf("file have no size (zero bytes)")
 	}
 
 	// Return file size in bytes.
