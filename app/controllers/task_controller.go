@@ -5,9 +5,7 @@ import (
 	"Komentory/api/platform/database"
 	"time"
 
-	"github.com/Komentory/repository"
 	"github.com/Komentory/utilities"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
@@ -107,7 +105,7 @@ func GetTasksByProjectID(c *fiber.Ctx) error {
 func CreateTask(c *fiber.Ctx) error {
 	// Set needed credentials.
 	credentials := []string{
-		repository.GenerateCredential("tasks", "create", false),
+		utilities.GenerateCredential("tasks", "create", false),
 	}
 
 	// Validate JWT token.
@@ -194,7 +192,7 @@ func CreateTask(c *fiber.Ctx) error {
 		// Return status 403 and permission denied error message.
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": true,
-			"msg":   repository.GenerateErrorMessage(403, "user", "it's not your task"),
+			"msg":   utilities.GenerateErrorMessage(403, "user", "it's not your task"),
 		})
 	}
 }
@@ -203,7 +201,7 @@ func CreateTask(c *fiber.Ctx) error {
 func UpdateTask(c *fiber.Ctx) error {
 	// Set needed credentials.
 	credentials := []string{
-		repository.GenerateCredential("tasks", "update", true),
+		utilities.GenerateCredential("tasks", "update", true),
 	}
 
 	// Validate JWT token.
@@ -288,7 +286,7 @@ func UpdateTask(c *fiber.Ctx) error {
 		// Return status 403 and permission denied error message.
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": true,
-			"msg":   repository.GenerateErrorMessage(403, "user", "it's not your task"),
+			"msg":   utilities.GenerateErrorMessage(403, "user", "it's not your task"),
 		})
 	}
 }
@@ -297,7 +295,7 @@ func UpdateTask(c *fiber.Ctx) error {
 func DeleteTask(c *fiber.Ctx) error {
 	// Set needed credentials.
 	credentials := []string{
-		repository.GenerateCredential("tasks", "delete", true),
+		utilities.GenerateCredential("tasks", "delete", true),
 	}
 
 	// Validate JWT token.
@@ -374,7 +372,7 @@ func DeleteTask(c *fiber.Ctx) error {
 		// Return status 403 and permission denied error message.
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": true,
-			"msg":   repository.GenerateErrorMessage(403, "user", "it's not your task"),
+			"msg":   utilities.GenerateErrorMessage(403, "user", "it's not your task"),
 		})
 	}
 }

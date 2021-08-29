@@ -5,9 +5,7 @@ import (
 	"Komentory/api/platform/database"
 	"time"
 
-	"github.com/Komentory/repository"
 	"github.com/Komentory/utilities"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
@@ -135,7 +133,7 @@ func GetAnswersByTaskID(c *fiber.Ctx) error {
 func CreateAnswer(c *fiber.Ctx) error {
 	// Set needed credentials.
 	credentials := []string{
-		repository.GenerateCredential("answers", "create", false),
+		utilities.GenerateCredential("answers", "create", false),
 	}
 
 	// Validate JWT token.
@@ -233,7 +231,7 @@ func CreateAnswer(c *fiber.Ctx) error {
 func UpdateAnswer(c *fiber.Ctx) error {
 	// Set needed credentials.
 	credentials := []string{
-		repository.GenerateCredential("answers", "update", true),
+		utilities.GenerateCredential("answers", "update", true),
 	}
 
 	// Validate JWT token.
@@ -319,7 +317,7 @@ func UpdateAnswer(c *fiber.Ctx) error {
 		// Return status 403 and permission denied error message.
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": true,
-			"msg":   repository.GenerateErrorMessage(403, "user", "it's not your task"),
+			"msg":   utilities.GenerateErrorMessage(403, "user", "it's not your task"),
 		})
 	}
 }
@@ -328,7 +326,7 @@ func UpdateAnswer(c *fiber.Ctx) error {
 func DeleteAnswer(c *fiber.Ctx) error {
 	// Set needed credentials.
 	credentials := []string{
-		repository.GenerateCredential("answers", "delete", true),
+		utilities.GenerateCredential("answers", "delete", true),
 	}
 
 	// Validate JWT token.
@@ -405,7 +403,7 @@ func DeleteAnswer(c *fiber.Ctx) error {
 		// Return status 403 and permission denied error message.
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": true,
-			"msg":   repository.GenerateErrorMessage(403, "user", "it's not your task"),
+			"msg":   utilities.GenerateErrorMessage(403, "user", "it's not your task"),
 		})
 	}
 }

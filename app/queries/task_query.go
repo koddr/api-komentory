@@ -5,8 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/Komentory/repository"
-
+	"github.com/Komentory/utilities"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -40,7 +39,7 @@ func (q *TaskQueries) GetTaskByID(id uuid.UUID) (models.Task, int, error) {
 		return task, fiber.StatusOK, nil
 	case sql.ErrNoRows:
 		// Return empty object and 404 error.
-		return task, fiber.StatusNotFound, fmt.Errorf(repository.GenerateErrorMessage(404, "task", "id"))
+		return task, fiber.StatusNotFound, fmt.Errorf(utilities.GenerateErrorMessage(404, "task", "id"))
 	default:
 		// Return empty object and 400 error.
 		return task, fiber.StatusBadRequest, err
@@ -70,7 +69,7 @@ func (q *TaskQueries) GetTasksByProjectID(project_id uuid.UUID) ([]models.TaskLi
 		return tasks, fiber.StatusOK, nil
 	case sql.ErrNoRows:
 		// Return empty object and 404 error.
-		return tasks, fiber.StatusNotFound, fmt.Errorf(repository.GenerateErrorMessage(404, "task", "project_id"))
+		return tasks, fiber.StatusNotFound, fmt.Errorf(utilities.GenerateErrorMessage(404, "task", "project_id"))
 	default:
 		// Return empty object and 400 error.
 		return tasks, fiber.StatusBadRequest, err

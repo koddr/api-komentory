@@ -9,7 +9,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Komentory/repository"
 	"github.com/Komentory/utilities"
 	"github.com/gofiber/fiber/v2"
 	"github.com/minio/minio-go/v7"
@@ -250,7 +249,7 @@ func RemoveFileFromCDN(c *fiber.Ctx) error {
 		// Return status 403 and error message.
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": true,
-			"msg":   repository.GenerateErrorMessage(403, "user", "it's not your file"),
+			"msg":   utilities.GenerateErrorMessage(403, "user", "it's not your file"),
 		})
 	}
 

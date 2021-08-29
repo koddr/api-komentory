@@ -6,9 +6,7 @@ import (
 	"Komentory/api/app/models"
 	"Komentory/api/platform/database"
 
-	"github.com/Komentory/repository"
 	"github.com/Komentory/utilities"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
@@ -131,7 +129,7 @@ func GetProjectByAlias(c *fiber.Ctx) error {
 func CreateProject(c *fiber.Ctx) error {
 	// Set needed credentials.
 	credentials := []string{
-		repository.GenerateCredential("projects", "create", false),
+		utilities.GenerateCredential("projects", "create", false),
 	}
 
 	// Validate JWT token.
@@ -205,7 +203,7 @@ func CreateProject(c *fiber.Ctx) error {
 func UpdateProject(c *fiber.Ctx) error {
 	// Set needed credentials.
 	credentials := []string{
-		repository.GenerateCredential("projects", "update", true),
+		utilities.GenerateCredential("projects", "update", true),
 	}
 
 	// Validate JWT token.
@@ -289,7 +287,7 @@ func UpdateProject(c *fiber.Ctx) error {
 		// Return status 403 and permission denied error message.
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": true,
-			"msg":   repository.GenerateErrorMessage(403, "user", "it's not your project"),
+			"msg":   utilities.GenerateErrorMessage(403, "user", "it's not your project"),
 		})
 	}
 }
@@ -298,7 +296,7 @@ func UpdateProject(c *fiber.Ctx) error {
 func DeleteProject(c *fiber.Ctx) error {
 	// Set needed credentials.
 	credentials := []string{
-		repository.GenerateCredential("projects", "delete", true),
+		utilities.GenerateCredential("projects", "delete", true),
 	}
 
 	// Validate JWT token.
@@ -375,7 +373,7 @@ func DeleteProject(c *fiber.Ctx) error {
 		// Return status 403 and permission denied error message.
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"error": true,
-			"msg":   repository.GenerateErrorMessage(403, "user", "it's not your project"),
+			"msg":   utilities.GenerateErrorMessage(403, "user", "it's not your project"),
 		})
 	}
 }
