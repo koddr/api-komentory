@@ -44,11 +44,22 @@ func GetTaskByID(c *fiber.Ctx) error {
 		})
 	}
 
+	// Get all answers for this task ID.
+	answers, status, errGetAnswersByProjectID := db.GetAnswersByProjectID(task.ID)
+	if errGetAnswersByProjectID != nil {
+		// Return status and error message.
+		return c.Status(status).JSON(fiber.Map{
+			"error": true,
+			"msg":   errGetAnswersByProjectID.Error(),
+		})
+	}
+
 	// Return status 200 OK.
 	return c.JSON(fiber.Map{
-		"error": false,
-		"msg":   nil,
-		"task":  task,
+		"error":         false,
+		"task":          task,
+		"answers_count": len(answers),
+		"answers":       answers,
 	})
 }
 
@@ -87,7 +98,6 @@ func GetTasksByProjectID(c *fiber.Ctx) error {
 	// Return status 200 OK.
 	return c.JSON(fiber.Map{
 		"error": false,
-		"msg":   nil,
 		"count": len(tasks),
 		"tasks": tasks,
 	})
@@ -178,7 +188,6 @@ func CreateTask(c *fiber.Ctx) error {
 		// Return status 201 created.
 		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 			"error": false,
-			"msg":   nil,
 			"task":  task,
 		})
 	} else {
@@ -273,7 +282,6 @@ func UpdateTask(c *fiber.Ctx) error {
 		// Return status 200 OK.
 		return c.JSON(fiber.Map{
 			"error": false,
-			"msg":   nil,
 			"task":  task,
 		})
 	} else {

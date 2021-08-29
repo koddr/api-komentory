@@ -83,7 +83,6 @@ func GetFileListFromCDN(c *fiber.Ctx) error {
 	// Return status 200 OK.
 	return c.JSON(fiber.Map{
 		"error":   false,
-		"msg":     nil,
 		"count":   len(objects),
 		"objects": objects,
 	})
@@ -139,7 +138,6 @@ func PutImageFileToCDN(c *fiber.Ctx) error {
 	// Return status 201 created.
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"error": false,
-		"msg":   nil,
 		"info": fiber.Map{
 			"key":        uploadImageInfo.Key,
 			"etag":       uploadImageInfo.ETag,
@@ -200,7 +198,6 @@ func PutDocumentFileToCDN(c *fiber.Ctx) error {
 	// Return status 201 created.
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"error": false,
-		"msg":   nil,
 		"info": fiber.Map{
 			"key":        uploadImageInfo.Key,
 			"etag":       uploadImageInfo.ETag,

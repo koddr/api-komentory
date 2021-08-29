@@ -21,6 +21,14 @@ type Answer struct {
 	AnswerAttrs  AnswerAttrs `db:"answer_attrs" json:"answer_attrs" validate:"required,dive"`
 }
 
+// AnswerList struct to describe answer list object.
+type AnswerList struct {
+	ID          uuid.UUID   `db:"id" json:"id" validate:"required,uuid"`
+	CreatedAt   time.Time   `db:"created_at" json:"created_at"`
+	UpdatedAt   time.Time   `db:"updated_at" json:"updated_at"`
+	AnswerAttrs AnswerAttrs `db:"answer_attrs" json:"answer_attrs" validate:"required,dive"`
+}
+
 // AnswerAttrs struct to describe answer attributes.
 type AnswerAttrs struct {
 	Title       string `json:"title" validate:"required,lte=255"`
@@ -31,17 +39,17 @@ type AnswerAttrs struct {
 
 // Value make the AnswerAttrs struct implement the driver.Valuer interface.
 // This method simply returns the JSON-encoded representation of the struct.
-func (b AnswerAttrs) Value() (driver.Value, error) {
-	return json.Marshal(b)
+func (a AnswerAttrs) Value() (driver.Value, error) {
+	return json.Marshal(a)
 }
 
 // Scan make the AnswerAttrs struct implement the sql.Scanner interface.
 // This method simply decodes a JSON-encoded value into the struct fields.
-func (b *AnswerAttrs) Scan(value interface{}) error {
+func (a *AnswerAttrs) Scan(value interface{}) error {
 	j, ok := value.([]byte)
 	if !ok {
 		return errors.New("type assertion to []byte failed")
 	}
 
-	return json.Unmarshal(j, &b)
+	return json.Unmarshal(j, &a)
 }

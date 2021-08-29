@@ -47,7 +47,6 @@ func GetAnswerByID(c *fiber.Ctx) error {
 	// Return status 200 OK.
 	return c.JSON(fiber.Map{
 		"error":  false,
-		"msg":    nil,
 		"answer": answer,
 	})
 }
@@ -87,7 +86,6 @@ func GetAnswersByProjectID(c *fiber.Ctx) error {
 	// Return status 200 OK.
 	return c.JSON(fiber.Map{
 		"error":   false,
-		"msg":     nil,
 		"count":   len(answers),
 		"answers": answers,
 	})
@@ -128,7 +126,6 @@ func GetAnswersByTaskID(c *fiber.Ctx) error {
 	// Return status 200 OK.
 	return c.JSON(fiber.Map{
 		"error":   false,
-		"msg":     nil,
 		"count":   len(answers),
 		"answers": answers,
 	})
@@ -228,7 +225,6 @@ func CreateAnswer(c *fiber.Ctx) error {
 	// Return status 201 created.
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"error":  false,
-		"msg":    nil,
 		"answer": answer,
 	})
 }
@@ -317,7 +313,6 @@ func UpdateAnswer(c *fiber.Ctx) error {
 		// Return status 200 OK.
 		return c.JSON(fiber.Map{
 			"error": false,
-			"msg":   nil,
 			"task":  task,
 		})
 	} else {

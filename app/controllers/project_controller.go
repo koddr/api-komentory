@@ -38,7 +38,6 @@ func GetProjects(c *fiber.Ctx) error {
 	// Return status 200 OK.
 	return c.JSON(fiber.Map{
 		"error":    false,
-		"msg":      nil,
 		"count":    len(projects),
 		"projects": projects,
 	})
@@ -79,7 +78,6 @@ func GetProjectsByUserID(c *fiber.Ctx) error {
 	// Return status 200 OK.
 	return c.JSON(fiber.Map{
 		"error":    false,
-		"msg":      nil,
 		"count":    len(projects),
 		"projects": projects,
 	})
@@ -110,11 +108,22 @@ func GetProjectByAlias(c *fiber.Ctx) error {
 		})
 	}
 
+	// Get all tasks for this project ID.
+	tasks, status, errGetTasksByProjectID := db.GetTasksByProjectID(project.ID)
+	if errGetTasksByProjectID != nil {
+		// Return status and error message.
+		return c.Status(status).JSON(fiber.Map{
+			"error": true,
+			"msg":   errGetTasksByProjectID.Error(),
+		})
+	}
+
 	// Return status 200 OK.
 	return c.JSON(fiber.Map{
-		"error":   false,
-		"msg":     nil,
-		"project": project,
+		"error":       false,
+		"project":     project,
+		"tasks_count": len(tasks),
+		"tasks":       tasks,
 	})
 }
 
@@ -188,7 +197,6 @@ func CreateProject(c *fiber.Ctx) error {
 	// Return status 201 created.
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"error":   false,
-		"msg":     nil,
 		"project": project,
 	})
 }
@@ -275,7 +283,6 @@ func UpdateProject(c *fiber.Ctx) error {
 		// Return status 200 OK.
 		return c.JSON(fiber.Map{
 			"error":   false,
-			"msg":     nil,
 			"project": project,
 		})
 	} else {

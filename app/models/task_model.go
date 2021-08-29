@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Task struct to describe project object.
+// Task struct to describe task object.
 type Task struct {
 	ID         uuid.UUID `db:"id" json:"id" validate:"required,uuid"`
 	CreatedAt  time.Time `db:"created_at" json:"created_at"`
@@ -20,7 +20,15 @@ type Task struct {
 	TaskAttrs  TaskAttrs `db:"task_attrs" json:"task_attrs" validate:"required,dive"`
 }
 
-// TaskAttrs struct to describe project attributes.
+// TaskList struct to describe task list object.
+type TaskList struct {
+	ID        uuid.UUID `db:"id" json:"id" validate:"required,uuid"`
+	CreatedAt time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+	TaskAttrs TaskAttrs `db:"task_attrs" json:"task_attrs" validate:"required,dive"`
+}
+
+// TaskAttrs struct to describe task attributes.
 type TaskAttrs struct {
 	Title       string `json:"title" validate:"required,lte=255"`
 	Description string `json:"description" validate:"required"`
@@ -30,17 +38,17 @@ type TaskAttrs struct {
 
 // Value make the TaskAttrs struct implement the driver.Valuer interface.
 // This method simply returns the JSON-encoded representation of the struct.
-func (b TaskAttrs) Value() (driver.Value, error) {
-	return json.Marshal(b)
+func (t TaskAttrs) Value() (driver.Value, error) {
+	return json.Marshal(t)
 }
 
 // Scan make the TaskAttrs struct implement the sql.Scanner interface.
 // This method simply decodes a JSON-encoded value into the struct fields.
-func (b *TaskAttrs) Scan(value interface{}) error {
+func (t *TaskAttrs) Scan(value interface{}) error {
 	j, ok := value.([]byte)
 	if !ok {
 		return errors.New("type assertion to []byte failed")
 	}
 
-	return json.Unmarshal(j, &b)
+	return json.Unmarshal(j, &t)
 }

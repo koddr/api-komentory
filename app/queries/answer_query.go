@@ -78,13 +78,13 @@ func (q *AnswerQueries) GetAnswersByProjectID(project_id uuid.UUID) ([]models.An
 }
 
 // GetAnswersByTaskID method for getting all answers for given task.
-func (q *AnswerQueries) GetAnswersByTaskID(task_id uuid.UUID) ([]models.Answer, int, error) {
+func (q *AnswerQueries) GetAnswersByTaskID(task_id uuid.UUID) ([]models.AnswerList, int, error) {
 	// Define project variable.
-	answers := []models.Answer{}
+	answers := []models.AnswerList{}
 
 	// Define query string.
 	query := `
-	SELECT * 
+	SELECT id, created_at, updated_at, answer_attrs 
 	FROM answers 
 	WHERE (task_id = $1::uuid AND answer_status = 1) 
 	ORDER BY created_at DESC

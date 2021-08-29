@@ -48,13 +48,13 @@ func (q *TaskQueries) GetTaskByID(id uuid.UUID) (models.Task, int, error) {
 }
 
 // GetTasksByProjectID method for getting all tasks for given project.
-func (q *TaskQueries) GetTasksByProjectID(project_id uuid.UUID) ([]models.Task, int, error) {
+func (q *TaskQueries) GetTasksByProjectID(project_id uuid.UUID) ([]models.TaskList, int, error) {
 	// Define project variable.
-	tasks := []models.Task{}
+	tasks := []models.TaskList{}
 
 	// Define query string.
 	query := `
-	SELECT * 
+	SELECT id, created_at, updated_at, task_attrs 
 	FROM tasks 
 	WHERE (project_id = $1::uuid AND task_status = 1) 
 	ORDER BY created_at DESC
