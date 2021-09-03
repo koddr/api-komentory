@@ -167,11 +167,21 @@ func CreateProject(c *fiber.Ctx) error {
 	// Create a new validator for a Project model.
 	validate := utilities.NewValidator()
 
+	// Generate random string for the project's alias.
+	randomAlias, errGenerateNewNanoID := utilities.GenerateNewNanoID("", 24)
+	if errGenerateNewNanoID != nil {
+		// Return status 400 and bad request error.
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": true,
+			"msg":   errGenerateNewNanoID.Error(),
+		})
+	}
+
 	// Set initialized default data for project:
 	project.ID = uuid.New()
 	project.CreatedAt = time.Now()
 	project.UserID = claims.UserID
-	project.Alias = project.ID.String()[:4] + project.ID.String()[24:]
+	project.Alias = randomAlias
 	project.ProjectStatus = 0 // 0 == draft, 1 == active, 2 == blocked
 
 	// Validate project fields.

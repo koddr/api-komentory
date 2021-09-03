@@ -15,7 +15,7 @@ type Project struct {
 	CreatedAt     time.Time    `db:"created_at" json:"created_at"`
 	UpdatedAt     time.Time    `db:"updated_at" json:"updated_at"`
 	UserID        uuid.UUID    `db:"user_id" json:"user_id" validate:"required,uuid"`
-	Alias         string       `db:"alias" json:"alias" validate:"required,lte=64"`
+	Alias         string       `db:"alias" json:"alias" validate:"required,lte=24"`
 	ProjectStatus int          `db:"project_status" json:"project_status" validate:"int"`
 	ProjectAttrs  ProjectAttrs `db:"project_attrs" json:"project_attrs" validate:"required,dive"`
 }
