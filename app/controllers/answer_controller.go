@@ -221,10 +221,7 @@ func CreateAnswer(c *fiber.Ctx) error {
 	}
 
 	// Return status 201 created.
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"error":  false,
-		"answer": answer,
-	})
+	return c.SendStatus(fiber.StatusCreated)
 }
 
 // UpdateAnswer func for update task by given ID.
@@ -245,10 +242,10 @@ func UpdateAnswer(c *fiber.Ctx) error {
 	}
 
 	// Create new Answer struct
-	task := &models.Answer{}
+	answer := &models.Answer{}
 
 	// Check, if received JSON data is valid.
-	if err := c.BodyParser(task); err != nil {
+	if err := c.BodyParser(answer); err != nil {
 		// Return status 400 and error message.
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": true,
@@ -266,8 +263,8 @@ func UpdateAnswer(c *fiber.Ctx) error {
 		})
 	}
 
-	// Checking, if project with given ID is exists.
-	foundedAnswer, status, errGetAnswerByID := db.GetAnswerByID(task.ID)
+	// Checking, if answer with given ID is exists.
+	foundedAnswer, status, errGetAnswerByID := db.GetAnswerByID(answer.ID)
 	if errGetAnswerByID != nil {
 		// Return status and error message.
 		return c.Status(status).JSON(fiber.Map{
@@ -279,19 +276,19 @@ func UpdateAnswer(c *fiber.Ctx) error {
 	// Set user ID from JWT data of current user.
 	userID := claims.UserID
 
-	// Only the creator can update his task.
+	// Only the creator can update his answer.
 	if foundedAnswer.UserID == userID {
-		// Set initialized default data for task:
-		task.UpdatedAt = time.Now()
-		task.UserID = userID
-		task.ProjectID = foundedAnswer.ProjectID
-		task.TaskID = foundedAnswer.TaskID
+		// Set initialized default data for answer:
+		answer.UpdatedAt = time.Now()
+		answer.UserID = userID
+		answer.ProjectID = foundedAnswer.ProjectID
+		answer.TaskID = foundedAnswer.TaskID
 
 		// Create a new validator for a Answer model.
 		validate := utilities.NewValidator()
 
-		// Validate project fields.
-		if err := validate.Struct(task); err != nil {
+		// Validate answer fields.
+		if err := validate.Struct(answer); err != nil {
 			// Return 400, if some fields are not valid.
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"error": true,
@@ -299,8 +296,8 @@ func UpdateAnswer(c *fiber.Ctx) error {
 			})
 		}
 
-		// Update task by given ID.
-		if err := db.UpdateAnswer(foundedAnswer.ID, task); err != nil {
+		// Update answer by given ID.
+		if err := db.UpdateAnswer(foundedAnswer.ID, answer); err != nil {
 			// Return status 500 and error message.
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error": true,
@@ -308,11 +305,8 @@ func UpdateAnswer(c *fiber.Ctx) error {
 			})
 		}
 
-		// Return status 200 OK.
-		return c.JSON(fiber.Map{
-			"error": false,
-			"task":  task,
-		})
+		// Return status 204 no content.
+		return c.SendStatus(fiber.StatusNoContent)
 	} else {
 		// Return status 403 and permission denied error message.
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
@@ -322,7 +316,7 @@ func UpdateAnswer(c *fiber.Ctx) error {
 	}
 }
 
-// DeleteAnswer func for delete task by given ID.
+// DeleteAnswer func for delete answer by given ID.
 func DeleteAnswer(c *fiber.Ctx) error {
 	// Set needed credentials.
 	credentials := []string{
@@ -340,10 +334,10 @@ func DeleteAnswer(c *fiber.Ctx) error {
 	}
 
 	// Create new Answer struct
-	project := &models.Answer{}
+	answer := &models.Answer{}
 
 	// Check, if received JSON data is valid.
-	if err := c.BodyParser(project); err != nil {
+	if err := c.BodyParser(answer); err != nil {
 		// Return status 400 and error message.
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": true,
@@ -354,8 +348,8 @@ func DeleteAnswer(c *fiber.Ctx) error {
 	// Create a new validator for a Answer model.
 	validate := utilities.NewValidator()
 
-	// Validate project fields.
-	if err := validate.StructPartial(project, "id"); err != nil {
+	// Validate answer fields.
+	if err := validate.StructPartial(answer, "id"); err != nil {
 		// Return, if some fields are not valid.
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": true,
@@ -373,8 +367,8 @@ func DeleteAnswer(c *fiber.Ctx) error {
 		})
 	}
 
-	// Checking, if project with given ID is exists.
-	foundedAnswer, status, errGetAnswerByID := db.GetAnswerByID(project.ID)
+	// Checking, if answer with given ID is exists.
+	foundedAnswer, status, errGetAnswerByID := db.GetAnswerByID(answer.ID)
 	if errGetAnswerByID != nil {
 		// Return status and error message.
 		return c.Status(status).JSON(fiber.Map{
@@ -388,7 +382,7 @@ func DeleteAnswer(c *fiber.Ctx) error {
 
 	// Only the creator can delete his task.
 	if foundedAnswer.UserID == userID {
-		// Delete project by given ID.
+		// Delete answer by given ID.
 		if err := db.DeleteAnswer(foundedAnswer.ID); err != nil {
 			// Return status 500 and error message.
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

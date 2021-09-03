@@ -193,10 +193,7 @@ func CreateProject(c *fiber.Ctx) error {
 	}
 
 	// Return status 201 created.
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"error":   false,
-		"project": project,
-	})
+	return c.SendStatus(fiber.StatusCreated)
 }
 
 // UpdateProject func for update project by given ID.
@@ -278,11 +275,8 @@ func UpdateProject(c *fiber.Ctx) error {
 			})
 		}
 
-		// Return status 200 OK.
-		return c.JSON(fiber.Map{
-			"error":   false,
-			"project": project,
-		})
+		// Return status 204 no content.
+		return c.SendStatus(fiber.StatusNoContent)
 	} else {
 		// Return status 403 and permission denied error message.
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{

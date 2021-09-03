@@ -184,10 +184,7 @@ func CreateTask(c *fiber.Ctx) error {
 		}
 
 		// Return status 201 created.
-		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-			"error": false,
-			"task":  task,
-		})
+		return c.SendStatus(fiber.StatusCreated)
 	} else {
 		// Return status 403 and permission denied error message.
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
@@ -277,11 +274,8 @@ func UpdateTask(c *fiber.Ctx) error {
 			})
 		}
 
-		// Return status 200 OK.
-		return c.JSON(fiber.Map{
-			"error": false,
-			"task":  task,
-		})
+		// Return status 204 no content.
+		return c.SendStatus(fiber.StatusNoContent)
 	} else {
 		// Return status 403 and permission denied error message.
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
