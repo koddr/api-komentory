@@ -3,6 +3,7 @@ package controllers
 import (
 	"Komentory/api/app/models"
 	"Komentory/api/platform/database"
+	"fmt"
 	"time"
 
 	"github.com/Komentory/utilities"
@@ -13,33 +14,21 @@ import (
 // GetAnswerByID func for get one answer by ID.
 func GetAnswerByID(c *fiber.Ctx) error {
 	// Catch task ID from URL.
-	taskID, errParse := uuid.Parse(c.Params("answer_id"))
-	if errParse != nil {
-		// Return status 400 and bad request error.
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   errParse.Error(),
-		})
+	taskID, err := uuid.Parse(c.Params("answer_id"))
+	if err != nil {
+		return utilities.CheckForError(c, err, 400, "answer id", err.Error())
 	}
 
 	// Create database connection.
-	db, errOpenDBConnection := database.OpenDBConnection()
-	if errOpenDBConnection != nil {
-		// Return status 500 and database connection error.
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   errOpenDBConnection.Error(),
-		})
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return utilities.CheckForError(c, err, 500, "database", "no connection")
 	}
 
 	// Get one answer.
-	answer, status, errGetAnswerByID := db.GetAnswerByID(taskID)
-	if errGetAnswerByID != nil {
-		// Return status and error message.
-		return c.Status(status).JSON(fiber.Map{
-			"error": true,
-			"msg":   errGetAnswerByID.Error(),
-		})
+	answer, status, err := db.GetAnswerByID(taskID)
+	if err != nil {
+		return utilities.CheckForError(c, err, status, "answer", err.Error())
 	}
 
 	// Return status 200 OK.
@@ -52,33 +41,21 @@ func GetAnswerByID(c *fiber.Ctx) error {
 // GetAnswersByProjectID func for get all exists answers by project ID.
 func GetAnswersByProjectID(c *fiber.Ctx) error {
 	// Catch project ID from URL.
-	projectID, errParse := uuid.Parse(c.Params("project_id"))
-	if errParse != nil {
-		// Return status 400 and bad request error.
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   errParse.Error(),
-		})
+	projectID, err := uuid.Parse(c.Params("project_id"))
+	if err != nil {
+		return utilities.CheckForError(c, err, 400, "project id", err.Error())
 	}
 
 	// Create database connection.
-	db, errOpenDBConnection := database.OpenDBConnection()
-	if errOpenDBConnection != nil {
-		// Return status 500 and database connection error.
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   errOpenDBConnection.Error(),
-		})
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return utilities.CheckForError(c, err, 500, "database", "no connection")
 	}
 
 	// Get all answers.
-	answers, status, errGetAnswersByProjectID := db.GetAnswersByProjectID(projectID)
-	if errGetAnswersByProjectID != nil {
-		// Return status and error message.
-		return c.Status(status).JSON(fiber.Map{
-			"error": true,
-			"msg":   errGetAnswersByProjectID.Error(),
-		})
+	answers, status, err := db.GetAnswersByProjectID(projectID)
+	if err != nil {
+		return utilities.CheckForError(c, err, status, "answers", err.Error())
 	}
 
 	// Return status 200 OK.
@@ -92,33 +69,21 @@ func GetAnswersByProjectID(c *fiber.Ctx) error {
 // GetAnswersByTaskID func for get all exists answers by task ID.
 func GetAnswersByTaskID(c *fiber.Ctx) error {
 	// Catch task ID from URL.
-	taskID, errParse := uuid.Parse(c.Params("task_id"))
-	if errParse != nil {
-		// Return status 400 and bad request error.
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   errParse.Error(),
-		})
+	taskID, err := uuid.Parse(c.Params("task_id"))
+	if err != nil {
+		return utilities.CheckForError(c, err, 400, "task id", err.Error())
 	}
 
 	// Create database connection.
-	db, errOpenDBConnection := database.OpenDBConnection()
-	if errOpenDBConnection != nil {
-		// Return status 500 and database connection error.
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   errOpenDBConnection.Error(),
-		})
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return utilities.CheckForError(c, err, 500, "database", "no connection")
 	}
 
 	// Get all answers.
-	answers, status, errGetAnswersByTaskID := db.GetAnswersByTaskID(taskID)
-	if errGetAnswersByTaskID != nil {
-		// Return status and error message.
-		return c.Status(status).JSON(fiber.Map{
-			"error": true,
-			"msg":   errGetAnswersByTaskID.Error(),
-		})
+	answers, status, err := db.GetAnswersByTaskID(taskID)
+	if err != nil {
+		return utilities.CheckForError(c, err, status, "answers", err.Error())
 	}
 
 	// Return status 200 OK.
@@ -137,13 +102,9 @@ func CreateAnswer(c *fiber.Ctx) error {
 	}
 
 	// Validate JWT token.
-	claims, errTokenValidate := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
-	if errTokenValidate != nil {
-		// Return status 401 and error message.
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": true,
-			"msg":   errTokenValidate.Error(),
-		})
+	claims, err := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
+	if err != nil {
+		return utilities.CheckForError(c, err, 401, "jwt", err.Error())
 	}
 
 	// Create new Answer struct
@@ -151,41 +112,25 @@ func CreateAnswer(c *fiber.Ctx) error {
 
 	// Check, if received JSON data is valid.
 	if err := c.BodyParser(answer); err != nil {
-		// Return status 400 and error message.
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
+		return utilities.CheckForError(c, err, 400, "answer", err.Error())
 	}
 
 	// Create database connection.
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		// Return status 500 and database connection error.
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
+		return utilities.CheckForError(c, err, 500, "database", "no connection")
 	}
 
 	// Checking, if project with given ID is exists.
-	foundedProject, status, errGetProjectByID := db.GetProjectByID(answer.ProjectID)
-	if errGetProjectByID != nil {
-		// Return status and error message.
-		return c.Status(status).JSON(fiber.Map{
-			"error": true,
-			"msg":   errGetProjectByID.Error(),
-		})
+	foundedProject, status, err := db.GetProjectByID(answer.ProjectID)
+	if err != nil {
+		return utilities.CheckForError(c, err, status, "project", err.Error())
 	}
 
 	// Checking, if task with given ID is exists.
-	foundedTask, status, errGetTaskByID := db.GetTaskByID(answer.TaskID)
-	if errGetTaskByID != nil {
-		// Return status and error message.
-		return c.Status(status).JSON(fiber.Map{
-			"error": true,
-			"msg":   errGetTaskByID.Error(),
-		})
+	foundedTask, status, err := db.GetTaskByID(answer.TaskID)
+	if err != nil {
+		return utilities.CheckForError(c, err, status, "task", err.Error())
 	}
 
 	// Set user ID from JWT data of current user.
@@ -204,20 +149,14 @@ func CreateAnswer(c *fiber.Ctx) error {
 
 	// Validate answer fields.
 	if err := validate.Struct(answer); err != nil {
-		// Return, if some fields are not valid.
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   utilities.ValidatorErrors(err),
-		})
+		return utilities.CheckForError(
+			c, err, 400, "answer", fmt.Sprintf("validation error, %v", utilities.ValidatorErrors(err)),
+		)
 	}
 
 	// Create a new answer with given attrs.
 	if err := db.CreateAnswer(answer); err != nil {
-		// Return status 500 and error message.
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
+		return utilities.CheckForError(c, err, 500, "answer", err.Error())
 	}
 
 	// Return status 201 created.
@@ -232,13 +171,9 @@ func UpdateAnswer(c *fiber.Ctx) error {
 	}
 
 	// Validate JWT token.
-	claims, errTokenValidate := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
-	if errTokenValidate != nil {
-		// Return status 401 and error message.
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": true,
-			"msg":   errTokenValidate.Error(),
-		})
+	claims, err := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
+	if err != nil {
+		return utilities.CheckForError(c, err, 401, "jwt", err.Error())
 	}
 
 	// Create new Answer struct
@@ -246,31 +181,19 @@ func UpdateAnswer(c *fiber.Ctx) error {
 
 	// Check, if received JSON data is valid.
 	if err := c.BodyParser(answer); err != nil {
-		// Return status 400 and error message.
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
+		return utilities.CheckForError(c, err, 400, "answer", err.Error())
 	}
 
 	// Create database connection.
-	db, errOpenDBConnection := database.OpenDBConnection()
-	if errOpenDBConnection != nil {
-		// Return status 500 and database connection error.
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   errOpenDBConnection.Error(),
-		})
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return utilities.CheckForError(c, err, 500, "database", "no connection")
 	}
 
 	// Checking, if answer with given ID is exists.
-	foundedAnswer, status, errGetAnswerByID := db.GetAnswerByID(answer.ID)
-	if errGetAnswerByID != nil {
-		// Return status and error message.
-		return c.Status(status).JSON(fiber.Map{
-			"error": true,
-			"msg":   errGetAnswerByID.Error(),
-		})
+	foundedAnswer, status, err := db.GetAnswerByID(answer.ID)
+	if err != nil {
+		return utilities.CheckForError(c, err, status, "answer", err.Error())
 	}
 
 	// Set user ID from JWT data of current user.
@@ -289,30 +212,22 @@ func UpdateAnswer(c *fiber.Ctx) error {
 
 		// Validate answer fields.
 		if err := validate.Struct(answer); err != nil {
-			// Return 400, if some fields are not valid.
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": true,
-				"msg":   utilities.ValidatorErrors(err),
-			})
+			return utilities.CheckForError(
+				c, err, 400, "answer", fmt.Sprintf("validation error, %v", utilities.ValidatorErrors(err)),
+			)
 		}
 
 		// Update answer by given ID.
 		if err := db.UpdateAnswer(foundedAnswer.ID, answer); err != nil {
-			// Return status 500 and error message.
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": true,
-				"msg":   err.Error(),
-			})
+			return utilities.CheckForError(c, err, 500, "answer", err.Error())
 		}
 
 		// Return status 204 no content.
 		return c.SendStatus(fiber.StatusNoContent)
 	} else {
 		// Return status 403 and permission denied error message.
-		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
-			"error": true,
-			"msg":   utilities.GenerateErrorMessage(403, "user", "it's not your task"),
-		})
+		return utilities.ThrowJSONError(c, 403, "user", "it's not your answer")
+
 	}
 }
 
@@ -324,13 +239,9 @@ func DeleteAnswer(c *fiber.Ctx) error {
 	}
 
 	// Validate JWT token.
-	claims, errTokenValidate := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
-	if errTokenValidate != nil {
-		// Return status 401 and error message.
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": true,
-			"msg":   errTokenValidate.Error(),
-		})
+	claims, err := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
+	if err != nil {
+		return utilities.CheckForError(c, err, 401, "jwt", err.Error())
 	}
 
 	// Create new Answer struct
@@ -338,11 +249,7 @@ func DeleteAnswer(c *fiber.Ctx) error {
 
 	// Check, if received JSON data is valid.
 	if err := c.BodyParser(answer); err != nil {
-		// Return status 400 and error message.
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
+		return utilities.CheckForError(c, err, 400, "answer", err.Error())
 	}
 
 	// Create a new validator for a Answer model.
@@ -350,31 +257,21 @@ func DeleteAnswer(c *fiber.Ctx) error {
 
 	// Validate answer fields.
 	if err := validate.StructPartial(answer, "id"); err != nil {
-		// Return, if some fields are not valid.
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   utilities.ValidatorErrors(err),
-		})
+		return utilities.CheckForError(
+			c, err, 400, "answer", fmt.Sprintf("validation error, %v", utilities.ValidatorErrors(err)),
+		)
 	}
 
 	// Create database connection.
-	db, errOpenDBConnection := database.OpenDBConnection()
-	if errOpenDBConnection != nil {
-		// Return status 500 and database connection error.
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   errOpenDBConnection.Error(),
-		})
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return utilities.CheckForError(c, err, 500, "database", "no connection")
 	}
 
 	// Checking, if answer with given ID is exists.
-	foundedAnswer, status, errGetAnswerByID := db.GetAnswerByID(answer.ID)
-	if errGetAnswerByID != nil {
-		// Return status and error message.
-		return c.Status(status).JSON(fiber.Map{
-			"error": true,
-			"msg":   errGetAnswerByID.Error(),
-		})
+	foundedAnswer, status, err := db.GetAnswerByID(answer.ID)
+	if err != nil {
+		return utilities.CheckForError(c, err, status, "answer", err.Error())
 	}
 
 	// Set user ID from JWT data of current user.
@@ -384,20 +281,13 @@ func DeleteAnswer(c *fiber.Ctx) error {
 	if foundedAnswer.UserID == userID {
 		// Delete answer by given ID.
 		if err := db.DeleteAnswer(foundedAnswer.ID); err != nil {
-			// Return status 500 and error message.
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": true,
-				"msg":   err.Error(),
-			})
+			return utilities.CheckForError(c, err, 500, "answer", err.Error())
 		}
 
 		// Return status 204 no content.
 		return c.SendStatus(fiber.StatusNoContent)
 	} else {
 		// Return status 403 and permission denied error message.
-		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
-			"error": true,
-			"msg":   utilities.GenerateErrorMessage(403, "user", "it's not your task"),
-		})
+		return utilities.ThrowJSONError(c, 403, "user", "it's not your answer")
 	}
 }
