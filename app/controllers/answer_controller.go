@@ -13,8 +13,8 @@ import (
 
 // GetAnswerByID func for get one answer by ID.
 func GetAnswerByID(c *fiber.Ctx) error {
-	// Catch task ID from URL.
-	taskID, err := uuid.Parse(c.Params("answer_id"))
+	// Catch answer ID from URL.
+	answerID, err := uuid.Parse(c.Params("answer_id"))
 	if err != nil {
 		return utilities.CheckForError(c, err, 400, "answer id", err.Error())
 	}
@@ -26,7 +26,7 @@ func GetAnswerByID(c *fiber.Ctx) error {
 	}
 
 	// Get one answer.
-	answer, status, err := db.GetAnswerByID(taskID)
+	answer, status, err := db.GetAnswerByID(answerID)
 	if err != nil {
 		return utilities.CheckForError(c, err, status, "answer", err.Error())
 	}

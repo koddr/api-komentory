@@ -16,6 +16,7 @@ type Task struct {
 	UpdatedAt  time.Time `db:"updated_at" json:"updated_at"`
 	UserID     uuid.UUID `db:"user_id" json:"user_id" validate:"required,uuid"`
 	ProjectID  uuid.UUID `db:"project_id" json:"project_id" validate:"required,uuid"`
+	Alias      string    `db:"alias" json:"alias" validate:"required,lte=16"`
 	TaskStatus int       `db:"task_status" json:"task_status" validate:"int"`
 	TaskAttrs  TaskAttrs `db:"task_attrs" json:"task_attrs" validate:"required,dive"`
 }
@@ -38,7 +39,7 @@ type TaskAttrs struct {
 
 // Value make the TaskAttrs struct implement the driver.Valuer interface.
 // This method simply returns the JSON-encoded representation of the struct.
-func (t TaskAttrs) Value() (driver.Value, error) {
+func (t *TaskAttrs) Value() (driver.Value, error) {
 	return json.Marshal(t)
 }
 
@@ -49,6 +50,5 @@ func (t *TaskAttrs) Scan(value interface{}) error {
 	if !ok {
 		return errors.New("type assertion to []byte failed")
 	}
-
 	return json.Unmarshal(j, &t)
 }

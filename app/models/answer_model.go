@@ -17,6 +17,7 @@ type Answer struct {
 	UserID       uuid.UUID   `db:"user_id" json:"user_id" validate:"required,uuid"`
 	ProjectID    uuid.UUID   `db:"project_id" json:"project_id" validate:"required,uuid"`
 	TaskID       uuid.UUID   `db:"task_id" json:"task_id" validate:"required,uuid"`
+	Alias        string      `db:"alias" json:"alias" validate:"required,lte=16"`
 	AnswerStatus int         `db:"answer_status" json:"answer_status" validate:"int"`
 	AnswerAttrs  AnswerAttrs `db:"answer_attrs" json:"answer_attrs" validate:"required,dive"`
 }

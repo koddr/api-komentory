@@ -25,22 +25,21 @@ type ProjectAttrs struct {
 	Title       string `json:"title" validate:"required,lte=255"`
 	Description string `json:"description" validate:"required"`
 	Picture     string `json:"picture"`
-	URL         string `json:"url"`
+	WebsiteURL  string `json:"website_url"`
 }
 
 // Value make the ProjectAttrs struct implement the driver.Valuer interface.
 // This method simply returns the JSON-encoded representation of the struct.
-func (b ProjectAttrs) Value() (driver.Value, error) {
-	return json.Marshal(b)
+func (p *ProjectAttrs) Value() (driver.Value, error) {
+	return json.Marshal(p)
 }
 
 // Scan make the ProjectAttrs struct implement the sql.Scanner interface.
 // This method simply decodes a JSON-encoded value into the struct fields.
-func (b *ProjectAttrs) Scan(value interface{}) error {
+func (p *ProjectAttrs) Scan(value interface{}) error {
 	j, ok := value.([]byte)
 	if !ok {
 		return errors.New("type assertion to []byte failed")
 	}
-
-	return json.Unmarshal(j, &b)
+	return json.Unmarshal(j, &p)
 }
