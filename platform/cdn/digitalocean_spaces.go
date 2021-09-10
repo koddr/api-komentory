@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/Komentory/utilities"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
@@ -65,7 +66,7 @@ func UploadFileToCDN(minioClient *minio.Client, pathToFile, fileType, userID str
 	defer file.Close() // auto close file
 
 	// Generate a new file name.
-	newFileName, errGenerateFileName := helpers.GenerateFileName(userID)
+	newFileName, errGenerateFileName := utilities.GenerateNewNanoID("", 12)
 	if errGenerateFileName != nil {
 		// Return empty info and error message.
 		return minio.UploadInfo{}, errGenerateFileName
@@ -79,7 +80,7 @@ func UploadFileToCDN(minioClient *minio.Client, pathToFile, fileType, userID str
 	}
 
 	// Start uploading file to upload folder on CDN.
-	// Folder: user ID, File name: SHA256 hash with origin extension.
+	// Folder: user ID, File name: nanoID with origin extension.
 	// Return info of the successfully uploaded file.
 	return minioClient.PutObject(
 		context.Background(),

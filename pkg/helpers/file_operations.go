@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Komentory/utilities"
 	"github.com/google/uuid"
 	"github.com/h2non/filetype"
 )
@@ -83,11 +82,6 @@ func GetLocalFileInfo(pathToFile, fileType string) (*models.LocalFileInfo, error
 		Extension:   kind.Extension,
 		Size:        fileSize,
 	}, nil
-}
-
-// GenerateFileName func for generate name with nanoID for uploaded file.
-func GenerateFileName(userID string) (string, error) {
-	return utilities.GenerateNewNanoID("", 12)
 }
 
 // GetFileSize func for getting the file size.
