@@ -2,16 +2,14 @@ package helpers
 
 import (
 	"Komentory/api/app/models"
-	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
+	"github.com/Komentory/utilities"
 	"github.com/google/uuid"
 	"github.com/h2non/filetype"
 )
@@ -87,23 +85,9 @@ func GetLocalFileInfo(pathToFile, fileType string) (*models.LocalFileInfo, error
 	}, nil
 }
 
-// GenerateFileName func for generate name for uploaded file.
+// GenerateFileName func for generate name with nanoID for uploaded file.
 func GenerateFileName(userID string) (string, error) {
-	// Create a new SHA256 hash.
-	sha256 := sha256.New()
-
-	// Create a new string with user ID and time string.
-	name := userID + time.Now().String()
-
-	// See: https://pkg.go.dev/io#Writer.Write
-	_, err := sha256.Write([]byte(name))
-	if err != nil {
-		// Return error, if generation failed.
-		return "", err
-	}
-
-	// Return a new file name.
-	return hex.EncodeToString(sha256.Sum(nil)), nil
+	return utilities.GenerateNewNanoID("", 12)
 }
 
 // GetFileSize func for getting the file size.

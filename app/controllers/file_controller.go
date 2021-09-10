@@ -17,23 +17,15 @@ import (
 // GetFileListFromCDN func for return a list of files from CDN.
 func GetFileListFromCDN(c *fiber.Ctx) error {
 	// Get claims from JWT.
-	_, errExtractTokenMetaData := utilities.ExtractTokenMetaData(c)
-	if errExtractTokenMetaData != nil {
-		// Return status 500 and JWT parse error.
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   errExtractTokenMetaData.Error(),
-		})
+	_, err := utilities.ExtractTokenMetaData(c)
+	if err != nil {
+		return utilities.CheckForError(c, err, 401, "jwt", err.Error())
 	}
 
 	// Create CDN connection.
-	connDOSpaces, errDOSpacesConnection := cdn.DOSpacesConnection()
-	if errDOSpacesConnection != nil {
-		// Return status 500 and CDN connection error.
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   errDOSpacesConnection.Error(),
-		})
+	connDOSpaces, err := cdn.DOSpacesConnection()
+	if err != nil {
+		return utilities.CheckForError(c, err, 500, "cdn", err.Error())
 	}
 
 	// Create context with cancel.
@@ -57,11 +49,7 @@ func GetFileListFromCDN(c *fiber.Ctx) error {
 	for object := range listObjectsChannel {
 		// Check, if received object is valid.
 		if object.Err != nil {
-			// Return status 400 and bad request error.
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": true,
-				"msg":   object.Err,
-			})
+			return utilities.CheckForError(c, err, 400, "cdn object", object.Err.Error())
 		}
 
 		// Skip upload folder from list, only files.
@@ -87,136 +75,59 @@ func GetFileListFromCDN(c *fiber.Ctx) error {
 	})
 }
 
-// PutImageFileToCDN func for upload a file to CDN.
-func PutImageFileToCDN(c *fiber.Ctx) error {
+// PutFileToCDN func for upload a file to CDN.
+// Allowed types: image, document.
+func PutFileToCDN(c *fiber.Ctx) error {
 	// Get claims from JWT.
-	claims, errExtractTokenMetaData := utilities.ExtractTokenMetaData(c)
-	if errExtractTokenMetaData != nil {
-		// Return status 500 and JWT parse error.
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   errExtractTokenMetaData.Error(),
-		})
+	claims, err := utilities.ExtractTokenMetaData(c)
+	if err != nil {
+		return utilities.CheckForError(c, err, 401, "jwt", err.Error())
 	}
 
 	// Define user ID.
 	userID := claims.UserID.String()
 
-	// Create new FilePath struct
-	filePath := &models.LocalFilePath{}
+	// Create new LocalFile struct.
+	localFile := &models.LocalFile{}
 
 	// Check, if received JSON data is valid.
-	if err := c.BodyParser(filePath); err != nil {
-		// Return status 400 and error message.
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
+	if err := c.BodyParser(localFile); err != nil {
+		return utilities.CheckForError(c, err, 400, "local file", err.Error())
 	}
 
 	// Create a new DO Spaces connection.
-	connDOSpaces, errDOSpacesConnection := cdn.DOSpacesConnection()
-	if errDOSpacesConnection != nil {
-		// Return status 500 and CDN connection error.
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   errDOSpacesConnection.Error(),
-		})
+	connDOSpaces, err := cdn.DOSpacesConnection()
+	if err != nil {
+		return utilities.CheckForError(c, err, 500, "cdn", err.Error())
 	}
 
-	// Upload image file process.
-	uploadImageInfo, errUploadFileToCDN := cdn.UploadFileToCDN(connDOSpaces, filePath.Path, "image", userID)
-	if errUploadFileToCDN != nil {
-		// Return status 400 and bad request error.
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   errUploadFileToCDN.Error(),
-		})
+	// Upload file process.
+	uploadFileInfo, err := cdn.UploadFileToCDN(connDOSpaces, localFile.Path, localFile.Type, userID)
+	if err != nil {
+		return utilities.CheckForError(
+			c, err, 400, fmt.Sprintf("cdn upload %s object", localFile.Type), err.Error(),
+		)
 	}
 
 	// Return status 201 created.
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"error": false,
 		"info": fiber.Map{
-			"key":        uploadImageInfo.Key,
-			"etag":       uploadImageInfo.ETag,
-			"size":       uploadImageInfo.Size,
-			"version_id": uploadImageInfo.VersionID,
+			"key":        uploadFileInfo.Key,
+			"etag":       uploadFileInfo.ETag,
+			"size":       uploadFileInfo.Size,
+			"version_id": uploadFileInfo.VersionID,
 		},
-		"url": fmt.Sprintf("%v/%v", os.Getenv("CDN_PUBLIC_URL"), uploadImageInfo.Key),
-	})
-}
-
-// PutDocumentFileToCDN func for upload a file to CDN.
-func PutDocumentFileToCDN(c *fiber.Ctx) error {
-	// Get claims from JWT.
-	claims, errExtractTokenMetaData := utilities.ExtractTokenMetaData(c)
-	if errExtractTokenMetaData != nil {
-		// Return status 500 and JWT parse error.
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   errExtractTokenMetaData.Error(),
-		})
-	}
-
-	// Define user ID.
-	userID := claims.UserID.String()
-
-	// Create new FilePath struct
-	filePath := &models.LocalFilePath{}
-
-	// Check, if received JSON data is valid.
-	if err := c.BodyParser(filePath); err != nil {
-		// Return status 400 and error message.
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
-	}
-
-	// Create a new DO Spaces connection.
-	connDOSpaces, errDOSpacesConnection := cdn.DOSpacesConnection()
-	if errDOSpacesConnection != nil {
-		// Return status 500 and CDN connection error.
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   errDOSpacesConnection.Error(),
-		})
-	}
-
-	// Upload image file process.
-	uploadImageInfo, errUploadFileToCDN := cdn.UploadFileToCDN(connDOSpaces, filePath.Path, "document", userID)
-	if errUploadFileToCDN != nil {
-		// Return status 400 and bad request error.
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   errUploadFileToCDN.Error(),
-		})
-	}
-
-	// Return status 201 created.
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"error": false,
-		"info": fiber.Map{
-			"key":        uploadImageInfo.Key,
-			"etag":       uploadImageInfo.ETag,
-			"size":       uploadImageInfo.Size,
-			"version_id": uploadImageInfo.VersionID,
-		},
-		"url": fmt.Sprintf("%v/%v", os.Getenv("CDN_PUBLIC_URL"), uploadImageInfo.Key),
+		"url": fmt.Sprintf("%v/%v", os.Getenv("CDN_PUBLIC_URL"), uploadFileInfo.Key),
 	})
 }
 
 // RemoveFileFromCDN func for remove exists file from CDN.
 func RemoveFileFromCDN(c *fiber.Ctx) error {
 	// Get claims from JWT.
-	claims, errExtractTokenMetaData := utilities.ExtractTokenMetaData(c)
-	if errExtractTokenMetaData != nil {
-		// Return status 500 and JWT parse error.
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   errExtractTokenMetaData.Error(),
-		})
+	claims, err := utilities.ExtractTokenMetaData(c)
+	if err != nil {
+		return utilities.CheckForError(c, err, 401, "jwt", err.Error())
 	}
 
 	// Get user ID from JWT.
@@ -227,40 +138,24 @@ func RemoveFileFromCDN(c *fiber.Ctx) error {
 
 	// Check, if received JSON data is valid.
 	if err := c.BodyParser(fileToDelete); err != nil {
-		// Return status 400 and error message.
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
+		return utilities.CheckForError(c, err, 400, "file object", err.Error())
 	}
 
 	// Get user ID from the user's upload folder on CDN.
-	fileUserID, errGetUserIDFromCDNFileKey := helpers.GetUserIDFromCDNFileKey(fileToDelete.Key)
-	if errGetUserIDFromCDNFileKey != nil {
-		// Return status 400 and error message.
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   errGetUserIDFromCDNFileKey.Error(),
-		})
+	fileUserID, err := helpers.GetUserIDFromCDNFileKey(fileToDelete.Key)
+	if err != nil {
+		return utilities.CheckForError(c, err, 400, "user id", err.Error())
 	}
 
 	// Check, if user ID from JWT is equal to user's upload folder on CDN.
 	if userID != fileUserID {
-		// Return status 403 and error message.
-		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
-			"error": true,
-			"msg":   utilities.GenerateErrorMessage(403, "user", "it's not your file"),
-		})
+		return utilities.ThrowJSONError(c, 403, "file object", "you have no permissions to interact")
 	}
 
 	// Create a new connection to DO Spaces CDN.
-	connDOSpaces, errDOSpacesConnection := cdn.DOSpacesConnection()
-	if errDOSpacesConnection != nil {
-		// Return status 500 and CDN connection error.
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   errDOSpacesConnection.Error(),
-		})
+	connDOSpaces, err := cdn.DOSpacesConnection()
+	if err != nil {
+		return utilities.CheckForError(c, err, 500, "cdn", err.Error())
 	}
 
 	// Remove file from CDN by key.
@@ -272,11 +167,7 @@ func RemoveFileFromCDN(c *fiber.Ctx) error {
 			VersionID: fileToDelete.VersionID,
 		},
 	); errRemoveObject != nil {
-		// Return status 400 and bad request error.
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   errRemoveObject.Error(),
-		})
+		return utilities.CheckForError(c, err, 400, "cdn remove object", err.Error())
 	}
 
 	// Return status 204 no content.

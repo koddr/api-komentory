@@ -21,11 +21,10 @@ func PrivateRoutes(a *fiber.App) {
 	route.Post("/answer", middleware.JWTProtected(), controllers.CreateAnswer)   // create a new answer
 
 	// Routes for PUT method:
-	route.Put("/project", middleware.JWTProtected(), controllers.UpdateProject)                    // update one project
-	route.Put("/task", middleware.JWTProtected(), controllers.UpdateTask)                          // update one task
-	route.Put("/answer", middleware.JWTProtected(), controllers.UpdateAnswer)                      // update one answer
-	route.Put("/cdn/upload/image", middleware.JWTProtected(), controllers.PutImageFileToCDN)       // upload image file to CDN
-	route.Put("/cdn/upload/document", middleware.JWTProtected(), controllers.PutDocumentFileToCDN) // upload document file to CDN
+	route.Put("/project", middleware.JWTProtected(), controllers.UpdateProject)   // update one project
+	route.Put("/task", middleware.JWTProtected(), controllers.UpdateTask)         // update one task
+	route.Put("/answer", middleware.JWTProtected(), controllers.UpdateAnswer)     // update one answer
+	route.Put("/cdn/upload", middleware.JWTProtected(), controllers.PutFileToCDN) // upload file object to CDN
 
 	// Routes for PATCH method:
 	route.Patch("/user/edit/password", middleware.JWTProtected(), controllers.UpdateUserPassword) // update user password

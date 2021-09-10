@@ -22,7 +22,7 @@ func GetAnswerByID(c *fiber.Ctx) error {
 	// Create database connection.
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		return utilities.CheckForError(c, err, 500, "database", "no connection")
+		return utilities.CheckForError(c, err, 500, "database", err.Error())
 	}
 
 	// Get one answer.
@@ -49,7 +49,7 @@ func GetAnswersByProjectID(c *fiber.Ctx) error {
 	// Create database connection.
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		return utilities.CheckForError(c, err, 500, "database", "no connection")
+		return utilities.CheckForError(c, err, 500, "database", err.Error())
 	}
 
 	// Get all answers.
@@ -77,7 +77,7 @@ func GetAnswersByTaskID(c *fiber.Ctx) error {
 	// Create database connection.
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		return utilities.CheckForError(c, err, 500, "database", "no connection")
+		return utilities.CheckForError(c, err, 500, "database", err.Error())
 	}
 
 	// Get all answers.
@@ -94,7 +94,7 @@ func GetAnswersByTaskID(c *fiber.Ctx) error {
 	})
 }
 
-// CreateAnswer func for create a new task for project.
+// CreateAnswer func for create a new answer for project.
 func CreateAnswer(c *fiber.Ctx) error {
 	// Set needed credentials.
 	credentials := []string{
@@ -118,7 +118,7 @@ func CreateAnswer(c *fiber.Ctx) error {
 	// Create database connection.
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		return utilities.CheckForError(c, err, 500, "database", "no connection")
+		return utilities.CheckForError(c, err, 500, "database", err.Error())
 	}
 
 	// Checking, if project with given ID is exists.
@@ -127,7 +127,7 @@ func CreateAnswer(c *fiber.Ctx) error {
 		return utilities.CheckForError(c, err, status, "project", err.Error())
 	}
 
-	// Checking, if task with given ID is exists.
+	// Checking, if answer with given ID is exists.
 	foundedTask, status, err := db.GetTaskByID(answer.TaskID)
 	if err != nil {
 		return utilities.CheckForError(c, err, status, "task", err.Error())
@@ -163,7 +163,7 @@ func CreateAnswer(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusCreated)
 }
 
-// UpdateAnswer func for update task by given ID.
+// UpdateAnswer func for update answer by given ID.
 func UpdateAnswer(c *fiber.Ctx) error {
 	// Set needed credentials.
 	credentials := []string{
@@ -187,7 +187,7 @@ func UpdateAnswer(c *fiber.Ctx) error {
 	// Create database connection.
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		return utilities.CheckForError(c, err, 500, "database", "no connection")
+		return utilities.CheckForError(c, err, 500, "database", err.Error())
 	}
 
 	// Checking, if answer with given ID is exists.
@@ -226,7 +226,7 @@ func UpdateAnswer(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusNoContent)
 	} else {
 		// Return status 403 and permission denied error message.
-		return utilities.ThrowJSONError(c, 403, "user", "it's not your answer")
+		return utilities.ThrowJSONError(c, 403, "answer", "you have no permissions to interact")
 
 	}
 }
@@ -265,7 +265,7 @@ func DeleteAnswer(c *fiber.Ctx) error {
 	// Create database connection.
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		return utilities.CheckForError(c, err, 500, "database", "no connection")
+		return utilities.CheckForError(c, err, 500, "database", err.Error())
 	}
 
 	// Checking, if answer with given ID is exists.
@@ -277,7 +277,7 @@ func DeleteAnswer(c *fiber.Ctx) error {
 	// Set user ID from JWT data of current user.
 	userID := claims.UserID
 
-	// Only the creator can delete his task.
+	// Only the creator can delete his answer.
 	if foundedAnswer.UserID == userID {
 		// Delete answer by given ID.
 		if err := db.DeleteAnswer(foundedAnswer.ID); err != nil {
@@ -288,6 +288,6 @@ func DeleteAnswer(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusNoContent)
 	} else {
 		// Return status 403 and permission denied error message.
-		return utilities.ThrowJSONError(c, 403, "user", "it's not your answer")
+		return utilities.ThrowJSONError(c, 403, "answer", "you have no permissions to interact")
 	}
 }
