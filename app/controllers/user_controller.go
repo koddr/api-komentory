@@ -3,6 +3,7 @@ package controllers
 import (
 	"Komentory/api/app/models"
 	"Komentory/api/platform/database"
+	"fmt"
 
 	"github.com/Komentory/utilities"
 	"github.com/gofiber/fiber/v2"
@@ -16,13 +17,9 @@ func UpdateUserPassword(c *fiber.Ctx) error {
 	}
 
 	// Validate JWT token.
-	claims, errTokenValidate := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
-	if errTokenValidate != nil {
-		// Return status 401 and error message.
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": true,
-			"msg":   errTokenValidate.Error(),
-		})
+	claims, err := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
+	if err != nil {
+		return utilities.CheckForError(c, err, 401, "jwt", err.Error())
 	}
 
 	// Create a new user change password struct.
@@ -30,11 +27,7 @@ func UpdateUserPassword(c *fiber.Ctx) error {
 
 	// Checking received data from JSON body.
 	if err := c.BodyParser(passwordChange); err != nil {
-		// Return status 400 and error message.
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
+		return utilities.CheckForError(c, err, 400, "user password", err.Error())
 	}
 
 	// Create a new validator for a User model.
@@ -42,44 +35,30 @@ func UpdateUserPassword(c *fiber.Ctx) error {
 
 	// Validate sign up fields.
 	if err := validate.Struct(passwordChange); err != nil {
-		// Return, if some fields are not valid.
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   utilities.ValidatorErrors(err),
-		})
+		return utilities.CheckForError(
+			c, err, 400, "task", fmt.Sprintf("validation error, %v", utilities.ValidatorErrors(err)),
+		)
 	}
 
 	// Create database connection.
-	db, errOpenDBConnection := database.OpenDBConnection()
-	if errOpenDBConnection != nil {
-		// Return status 500 and database connection error.
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   errOpenDBConnection.Error(),
-		})
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return utilities.CheckForError(c, err, 500, "database", err.Error())
 	}
 
 	// Set user ID from JWT data of current user.
 	userID := claims.UserID
 
 	// Get user by given email.
-	foundedUser, status, errGetUserByID := db.GetUserByID(userID)
-	if errGetUserByID != nil {
-		// Return status and error message.
-		return c.Status(status).JSON(fiber.Map{
-			"error": true,
-			"msg":   errGetUserByID.Error(),
-		})
+	foundedUser, status, err := db.GetUserByID(userID)
+	if err != nil {
+		return utilities.CheckForError(c, err, status, "user", err.Error())
 	}
 
 	// Compare given user password with stored in found user.
 	matchUserPasswords := utilities.ComparePasswords(foundedUser.PasswordHash, passwordChange.OldPassword)
 	if !matchUserPasswords {
-		// Return status 403, if password is not compare to stored in database.
-		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
-			"error": true,
-			"msg":   utilities.GenerateErrorMessage(403, "user", "email or password"),
-		})
+		return utilities.ThrowJSONError(c, 403, "user", "email or password")
 	}
 
 	// Set initialized default data for user:
@@ -87,11 +66,7 @@ func UpdateUserPassword(c *fiber.Ctx) error {
 
 	// Create a new user with validated data.
 	if err := db.UpdateUserPassword(foundedUser.ID, newPasswordHash); err != nil {
-		// Return status 400 and bad request error.
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
+		return utilities.CheckForError(c, err, 500, "user", err.Error())
 	}
 
 	// Return status 204 no content.
@@ -106,13 +81,9 @@ func UpdateUserAttrs(c *fiber.Ctx) error {
 	}
 
 	// Validate JWT token.
-	claims, errTokenValidate := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
-	if errTokenValidate != nil {
-		// Return status 401 and error message.
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": true,
-			"msg":   errTokenValidate.Error(),
-		})
+	claims, err := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
+	if err != nil {
+		return utilities.CheckForError(c, err, 401, "jwt", err.Error())
 	}
 
 	// Create a new user auth struct.
@@ -120,41 +91,25 @@ func UpdateUserAttrs(c *fiber.Ctx) error {
 
 	// Checking received data from JSON body.
 	if err := c.BodyParser(userAttrs); err != nil {
-		// Return status 400 and error message.
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
+		return utilities.CheckForError(c, err, 400, "user attrs", err.Error())
 	}
 
 	// Create database connection.
-	db, errOpenDBConnection := database.OpenDBConnection()
-	if errOpenDBConnection != nil {
-		// Return status 500 and database connection error.
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   errOpenDBConnection.Error(),
-		})
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return utilities.CheckForError(c, err, 500, "database", err.Error())
 	}
 
 	// Get user by email.
-	foundedUser, status, errGetUserByID := db.GetUserByID(claims.UserID)
-	if errGetUserByID != nil {
-		// Return status and error message.
-		return c.Status(status).JSON(fiber.Map{
-			"error": true,
-			"msg":   errGetUserByID.Error(),
-		})
+	foundedUser, status, err := db.GetUserByID(claims.UserID)
+	if err != nil {
+		return utilities.CheckForError(c, err, status, "user", err.Error())
 	}
 
 	// Update user attributes.
-	err := db.UpdateUserAttrs(foundedUser.ID, userAttrs)
+	err = db.UpdateUserAttrs(foundedUser.ID, userAttrs)
 	if err != nil {
-		// Return, status 500 and error message.
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": true,
-			"msg":   err.Error(),
-		})
+		return utilities.CheckForError(c, err, 500, "user attrs", err.Error())
 	}
 
 	// Return status 204 no content.
