@@ -55,7 +55,7 @@ func DOSpacesConnection() (*minio.Client, error) {
 	return minioClient, err
 }
 
-//
+// UploadFileToCDN func for easily upload given local file to CDN.
 func UploadFileToCDN(minioClient *minio.Client, pathToFile, fileType, userID string) (minio.UploadInfo, error) {
 	// Open the file from system path.
 	file, errOpen := os.Open(filepath.Clean(pathToFile))
