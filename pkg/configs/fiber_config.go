@@ -11,14 +11,28 @@ import (
 // FiberConfig func for configuration Fiber app.
 // See: https://docs.gofiber.io/api/fiber#config
 func FiberConfig() fiber.Config {
-	// Define server settings.
+	// Define server read timeout.
 	readTimeoutSecondsCount, err := strconv.Atoi(os.Getenv("SERVER_READ_TIMEOUT"))
+	if err != nil {
+		return fiber.Config{}
+	}
+
+	// Define server write timeout.
+	writeTimeoutSecondsCount, err := strconv.Atoi(os.Getenv("SERVER_WRITE_TIMEOUT"))
+	if err != nil {
+		return fiber.Config{}
+	}
+
+	// Define server idle timeout.
+	idleTimeoutSecondsCount, err := strconv.Atoi(os.Getenv("SERVER_IDLE_TIMEOUT"))
 	if err != nil {
 		return fiber.Config{}
 	}
 
 	// Return Fiber configuration.
 	return fiber.Config{
-		ReadTimeout: time.Second * time.Duration(readTimeoutSecondsCount),
+		ReadTimeout:  time.Duration(readTimeoutSecondsCount) * time.Second,
+		WriteTimeout: time.Duration(writeTimeoutSecondsCount) * time.Second,
+		IdleTimeout:  time.Duration(idleTimeoutSecondsCount) * time.Second,
 	}
 }
