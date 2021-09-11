@@ -29,10 +29,17 @@ func FiberConfig() fiber.Config {
 		return fiber.Config{}
 	}
 
+	// Define server settings for production.
+	var startupMessage bool
+	if os.Getenv("STAGE_STATUS") == "prod" {
+		startupMessage = true
+	}
+
 	// Return Fiber configuration.
 	return fiber.Config{
-		ReadTimeout:  time.Duration(readTimeoutSecondsCount) * time.Second,
-		WriteTimeout: time.Duration(writeTimeoutSecondsCount) * time.Second,
-		IdleTimeout:  time.Duration(idleTimeoutSecondsCount) * time.Second,
+		DisableStartupMessage: startupMessage,
+		ReadTimeout:           time.Duration(readTimeoutSecondsCount) * time.Second,
+		WriteTimeout:          time.Duration(writeTimeoutSecondsCount) * time.Second,
+		IdleTimeout:           time.Duration(idleTimeoutSecondsCount) * time.Second,
 	}
 }
