@@ -104,7 +104,7 @@ func CreateProject(c *fiber.Ctx) error {
 	// Validate JWT token.
 	claims, err := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
 	if err != nil {
-		return utilities.CheckForError(c, err, 401, "jwt", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 401, "jwt", err.Error())
 	}
 
 	// Create new Project struct
@@ -146,7 +146,7 @@ func CreateProject(c *fiber.Ctx) error {
 
 	// Create a new project with given attrs.
 	if err := db.CreateProject(project); err != nil {
-		return utilities.CheckForError(c, err, 400, "project", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 400, "project", err.Error())
 	}
 
 	// Return status 201 created.
