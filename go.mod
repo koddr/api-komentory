@@ -3,7 +3,7 @@ module Komentory/api
 go 1.17
 
 require (
-	github.com/Komentory/utilities v0.3.2
+	github.com/Komentory/utilities v0.4.0
 	github.com/gofiber/fiber/v2 v2.18.0
 	github.com/gofiber/jwt/v2 v2.2.7
 	github.com/google/uuid v1.3.0
