@@ -17,15 +17,15 @@ import (
 // GetFileListFromCDN func for return a list of files from CDN.
 func GetFileListFromCDN(c *fiber.Ctx) error {
 	// Get claims from JWT.
-	_, err := utilities.ExtractTokenMetaData(c)
+	_, err := utilities.TokenValidateExpireTime(c)
 	if err != nil {
-		return utilities.CheckForError(c, err, 401, "jwt", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 401, "jwt", err.Error())
 	}
 
 	// Create CDN connection.
 	connDOSpaces, err := cdn.DOSpacesConnection()
 	if err != nil {
-		return utilities.CheckForError(c, err, 500, "cdn", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 500, "cdn", err.Error())
 	}
 
 	// Create context with cancel.
@@ -69,7 +69,7 @@ func GetFileListFromCDN(c *fiber.Ctx) error {
 
 	// Return status 200 OK.
 	return c.JSON(fiber.Map{
-		"error":   false,
+		"status":  fiber.StatusOK,
 		"count":   len(objects),
 		"objects": objects,
 	})
@@ -79,9 +79,9 @@ func GetFileListFromCDN(c *fiber.Ctx) error {
 // Allowed types: image, document.
 func PutFileToCDN(c *fiber.Ctx) error {
 	// Get claims from JWT.
-	claims, err := utilities.ExtractTokenMetaData(c)
+	claims, err := utilities.TokenValidateExpireTime(c)
 	if err != nil {
-		return utilities.CheckForError(c, err, 401, "jwt", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 401, "jwt", err.Error())
 	}
 
 	// Define user ID.
@@ -98,7 +98,7 @@ func PutFileToCDN(c *fiber.Ctx) error {
 	// Create a new DO Spaces connection.
 	connDOSpaces, err := cdn.DOSpacesConnection()
 	if err != nil {
-		return utilities.CheckForError(c, err, 500, "cdn", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 500, "cdn", err.Error())
 	}
 
 	// Upload file process.
@@ -111,7 +111,7 @@ func PutFileToCDN(c *fiber.Ctx) error {
 
 	// Return status 201 created.
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"error": false,
+		"status": fiber.StatusCreated,
 		"info": fiber.Map{
 			"key":        uploadFileInfo.Key,
 			"etag":       uploadFileInfo.ETag,
@@ -125,9 +125,9 @@ func PutFileToCDN(c *fiber.Ctx) error {
 // RemoveFileFromCDN func for remove exists file from CDN.
 func RemoveFileFromCDN(c *fiber.Ctx) error {
 	// Get claims from JWT.
-	claims, err := utilities.ExtractTokenMetaData(c)
+	claims, err := utilities.TokenValidateExpireTime(c)
 	if err != nil {
-		return utilities.CheckForError(c, err, 401, "jwt", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 401, "jwt", err.Error())
 	}
 
 	// Get user ID from JWT.
@@ -144,18 +144,18 @@ func RemoveFileFromCDN(c *fiber.Ctx) error {
 	// Get user ID from the user's upload folder on CDN.
 	fileUserID, err := helpers.GetUserIDFromCDNFileKey(fileToDelete.Key)
 	if err != nil {
-		return utilities.CheckForError(c, err, 400, "user id", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 400, "user id", err.Error())
 	}
 
 	// Check, if user ID from JWT is equal to user's upload folder on CDN.
 	if userID != fileUserID {
-		return utilities.ThrowJSONError(c, 403, "file object", "you have no permissions to interact")
+		return utilities.ThrowJSONErrorWithStatusCode(c, 403, "file object", "you have no permissions")
 	}
 
 	// Create a new connection to DO Spaces CDN.
 	connDOSpaces, err := cdn.DOSpacesConnection()
 	if err != nil {
-		return utilities.CheckForError(c, err, 500, "cdn", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 500, "cdn", err.Error())
 	}
 
 	// Remove file from CDN by key.
@@ -167,7 +167,7 @@ func RemoveFileFromCDN(c *fiber.Ctx) error {
 			VersionID: fileToDelete.VersionID,
 		},
 	); errRemoveObject != nil {
-		return utilities.CheckForError(c, err, 400, "cdn remove object", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 400, "cdn remove object", err.Error())
 	}
 
 	// Return status 204 no content.

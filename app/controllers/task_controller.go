@@ -22,24 +22,24 @@ func GetTaskByID(c *fiber.Ctx) error {
 	// Create database connection.
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		return utilities.CheckForError(c, err, 500, "database", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 500, "database", err.Error())
 	}
 
 	// Get one task.
 	task, status, err := db.GetTaskByID(taskID)
 	if err != nil {
-		return utilities.CheckForError(c, err, status, "task", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, status, "task", err.Error())
 	}
 
 	// Get all answers for this task ID.
 	answers, status, err := db.GetAnswersByProjectID(task.ID)
 	if err != nil {
-		return utilities.CheckForError(c, err, status, "answers", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, status, "answers", err.Error())
 	}
 
 	// Return status 200 OK.
 	return c.JSON(fiber.Map{
-		"error":         false,
+		"status":        fiber.StatusOK,
 		"task":          task,
 		"answers_count": len(answers),
 		"answers":       answers,
@@ -57,20 +57,20 @@ func GetTasksByProjectID(c *fiber.Ctx) error {
 	// Create database connection.
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		return utilities.CheckForError(c, err, 500, "database", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 500, "database", err.Error())
 	}
 
 	// Get all tasks.
 	tasks, status, err := db.GetTasksByProjectID(projectID)
 	if err != nil {
-		return utilities.CheckForError(c, err, status, "tasks", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, status, "tasks", err.Error())
 	}
 
 	// Return status 200 OK.
 	return c.JSON(fiber.Map{
-		"error": false,
-		"count": len(tasks),
-		"tasks": tasks,
+		"status": fiber.StatusOK,
+		"count":  len(tasks),
+		"tasks":  tasks,
 	})
 }
 
@@ -84,7 +84,7 @@ func CreateTask(c *fiber.Ctx) error {
 	// Validate JWT token.
 	claims, err := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
 	if err != nil {
-		return utilities.CheckForError(c, err, 401, "jwt", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 401, "jwt", err.Error())
 	}
 
 	// Create new Task struct
@@ -98,13 +98,13 @@ func CreateTask(c *fiber.Ctx) error {
 	// Create database connection.
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		return utilities.CheckForError(c, err, 500, "database", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 500, "database", err.Error())
 	}
 
 	// Checking, if project with given ID is exists.
 	foundedProject, status, err := db.GetProjectByID(task.ProjectID)
 	if err != nil {
-		return utilities.CheckForError(c, err, status, "project", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, status, "project", err.Error())
 	}
 
 	// Set user ID from JWT data of current user.
@@ -112,15 +112,15 @@ func CreateTask(c *fiber.Ctx) error {
 
 	// Only the creator can add a new task for his project.
 	if foundedProject.UserID == userID {
-		// Create a new validator for a Task model.
-		validate := utilities.NewValidator()
-
 		// Set initialized default data for task:
 		task.ID = uuid.New()
 		task.CreatedAt = time.Now()
 		task.UserID = userID
 		task.ProjectID = foundedProject.ID
 		task.TaskStatus = 0 // 0 == draft, 1 == active, 2 == blocked
+
+		// Create a new validator for a Task model.
+		validate := utilities.NewValidator()
 
 		// Validate task fields.
 		if err := validate.Struct(task); err != nil {
@@ -131,14 +131,14 @@ func CreateTask(c *fiber.Ctx) error {
 
 		// Create a new task with given attrs.
 		if err := db.CreateTask(task); err != nil {
-			return utilities.CheckForError(c, err, 500, "task", err.Error())
+			return utilities.CheckForErrorWithStatusCode(c, err, 400, "task", err.Error())
 		}
 
 		// Return status 201 created.
 		return c.SendStatus(fiber.StatusCreated)
 	} else {
 		// Return status 403 and permission denied error message.
-		return utilities.ThrowJSONError(c, 403, "project", "you have no permissions to interact")
+		return utilities.ThrowJSONErrorWithStatusCode(c, 403, "project", "you have no permissions")
 	}
 }
 
@@ -152,7 +152,7 @@ func UpdateTask(c *fiber.Ctx) error {
 	// Validate JWT token.
 	claims, err := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
 	if err != nil {
-		return utilities.CheckForError(c, err, 401, "jwt", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 401, "jwt", err.Error())
 	}
 
 	// Create new Task struct
@@ -166,13 +166,13 @@ func UpdateTask(c *fiber.Ctx) error {
 	// Create database connection.
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		return utilities.CheckForError(c, err, 500, "database", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 500, "database", err.Error())
 	}
 
 	// Checking, if project with given ID is exists.
 	foundedTask, status, err := db.GetTaskByID(task.ID)
 	if err != nil {
-		return utilities.CheckForError(c, err, status, "task", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, status, "task", err.Error())
 	}
 
 	// Set user ID from JWT data of current user.
@@ -197,14 +197,14 @@ func UpdateTask(c *fiber.Ctx) error {
 
 		// Update task by given ID.
 		if err := db.UpdateTask(foundedTask.ID, task); err != nil {
-			return utilities.CheckForError(c, err, 500, "task", err.Error())
+			return utilities.CheckForErrorWithStatusCode(c, err, 400, "task", err.Error())
 		}
 
 		// Return status 204 no content.
 		return c.SendStatus(fiber.StatusNoContent)
 	} else {
 		// Return status 403 and permission denied error message.
-		return utilities.ThrowJSONError(c, 403, "project", "you have no permissions to interact")
+		return utilities.ThrowJSONErrorWithStatusCode(c, 403, "project", "you have no permissions")
 	}
 }
 
@@ -218,7 +218,7 @@ func DeleteTask(c *fiber.Ctx) error {
 	// Validate JWT token.
 	claims, err := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
 	if err != nil {
-		return utilities.CheckForError(c, err, 401, "jwt", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 401, "jwt", err.Error())
 	}
 
 	// Create new Task struct
@@ -242,13 +242,13 @@ func DeleteTask(c *fiber.Ctx) error {
 	// Create database connection.
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		return utilities.CheckForError(c, err, 500, "database", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 500, "database", err.Error())
 	}
 
 	// Checking, if task with given ID is exists.
 	foundedTask, status, err := db.GetTaskByID(task.ID)
 	if err != nil {
-		return utilities.CheckForError(c, err, status, "task", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, status, "task", err.Error())
 	}
 
 	// Set user ID from JWT data of current user.
@@ -258,13 +258,13 @@ func DeleteTask(c *fiber.Ctx) error {
 	if foundedTask.UserID == userID {
 		// Delete task by given ID.
 		if err := db.DeleteTask(foundedTask.ID); err != nil {
-			return utilities.CheckForError(c, err, 500, "task", err.Error())
+			return utilities.CheckForErrorWithStatusCode(c, err, 400, "task", err.Error())
 		}
 
 		// Return status 204 no content.
 		return c.SendStatus(fiber.StatusNoContent)
 	} else {
 		// Return status 403 and permission denied error message.
-		return utilities.ThrowJSONError(c, 403, "task", "you have no permissions to interact")
+		return utilities.ThrowJSONErrorWithStatusCode(c, 403, "task", "you have no permissions")
 	}
 }

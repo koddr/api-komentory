@@ -17,7 +17,7 @@ func GetProjects(c *fiber.Ctx) error {
 	// Create database connection.
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		return utilities.CheckForError(c, err, 500, "database", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 500, "database", err.Error())
 	}
 
 	// Get all projects.
@@ -28,7 +28,7 @@ func GetProjects(c *fiber.Ctx) error {
 
 	// Return status 200 OK.
 	return c.JSON(fiber.Map{
-		"error":    false,
+		"status":   fiber.StatusOK,
 		"count":    len(projects),
 		"projects": projects,
 	})
@@ -45,18 +45,18 @@ func GetProjectsByUserID(c *fiber.Ctx) error {
 	// Create database connection.
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		return utilities.CheckForError(c, err, 500, "database", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 500, "database", err.Error())
 	}
 
 	// Get all projects.
 	projects, status, err := db.GetProjectsByUserID(userID)
 	if err != nil {
-		return utilities.CheckForError(c, err, status, "projects", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, status, "projects", err.Error())
 	}
 
 	// Return status 200 OK.
 	return c.JSON(fiber.Map{
-		"error":    false,
+		"status":   fiber.StatusOK,
 		"count":    len(projects),
 		"projects": projects,
 	})
@@ -70,24 +70,24 @@ func GetProjectByAlias(c *fiber.Ctx) error {
 	// Create database connection.
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		return utilities.CheckForError(c, err, 500, "database", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 500, "database", err.Error())
 	}
 
 	// Get project by ID.
 	project, status, err := db.GetProjectByAlias(alias)
 	if err != nil {
-		return utilities.CheckForError(c, err, status, "project", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, status, "project", err.Error())
 	}
 
 	// Get all tasks for this project ID.
 	tasks, status, err := db.GetTasksByProjectID(project.ID)
 	if err != nil {
-		return utilities.CheckForError(c, err, status, "tasks", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, status, "tasks", err.Error())
 	}
 
 	// Return status 200 OK.
 	return c.JSON(fiber.Map{
-		"error":       false,
+		"status":      fiber.StatusOK,
 		"project":     project,
 		"tasks_count": len(tasks),
 		"tasks":       tasks,
@@ -118,7 +118,7 @@ func CreateProject(c *fiber.Ctx) error {
 	// Create database connection.
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		return utilities.CheckForError(c, err, 500, "database", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 500, "database", err.Error())
 	}
 
 	// Generate random string for the project's alias.
@@ -146,7 +146,7 @@ func CreateProject(c *fiber.Ctx) error {
 
 	// Create a new project with given attrs.
 	if err := db.CreateProject(project); err != nil {
-		return utilities.CheckForError(c, err, 500, "project", err.Error())
+		return utilities.CheckForError(c, err, 400, "project", err.Error())
 	}
 
 	// Return status 201 created.
@@ -163,7 +163,7 @@ func UpdateProject(c *fiber.Ctx) error {
 	// Validate JWT token.
 	claims, err := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
 	if err != nil {
-		return utilities.CheckForError(c, err, 400, "jwt", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 401, "jwt", err.Error())
 	}
 
 	// Create new Project struct
@@ -177,13 +177,13 @@ func UpdateProject(c *fiber.Ctx) error {
 	// Create database connection.
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		return utilities.CheckForError(c, err, 500, "database", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 500, "database", err.Error())
 	}
 
 	// Checking, if project with given ID is exists.
 	foundedProject, status, err := db.GetProjectByID(project.ID)
 	if err != nil {
-		return utilities.CheckForError(c, err, status, "project", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, status, "project", err.Error())
 	}
 
 	// Set user ID from JWT data of current user.
@@ -207,14 +207,14 @@ func UpdateProject(c *fiber.Ctx) error {
 
 		// Update project by given ID.
 		if err := db.UpdateProject(foundedProject.ID, project); err != nil {
-			return utilities.CheckForError(c, err, 500, "project", err.Error())
+			return utilities.CheckForErrorWithStatusCode(c, err, 400, "project", err.Error())
 		}
 
 		// Return status 204 no content.
 		return c.SendStatus(fiber.StatusNoContent)
 	} else {
 		// Return status 403 and permission denied error message.
-		return utilities.ThrowJSONError(c, 403, "project", "you have no permissions to interact")
+		return utilities.ThrowJSONErrorWithStatusCode(c, 403, "project", "you have no permissions")
 	}
 }
 
@@ -228,7 +228,7 @@ func DeleteProject(c *fiber.Ctx) error {
 	// Validate JWT token.
 	claims, err := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
 	if err != nil {
-		return utilities.CheckForError(c, err, 401, "jwt", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 401, "jwt", err.Error())
 	}
 
 	// Create new Project struct
@@ -252,13 +252,13 @@ func DeleteProject(c *fiber.Ctx) error {
 	// Create database connection.
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		return utilities.CheckForError(c, err, 500, "project", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, 500, "database", err.Error())
 	}
 
 	// Checking, if project with given ID is exists.
 	foundedProject, status, err := db.GetProjectByID(project.ID)
 	if err != nil {
-		return utilities.CheckForError(c, err, status, "project", err.Error())
+		return utilities.CheckForErrorWithStatusCode(c, err, status, "project", err.Error())
 	}
 
 	// Set user ID from JWT data of current user.
@@ -268,13 +268,13 @@ func DeleteProject(c *fiber.Ctx) error {
 	if foundedProject.UserID == userID {
 		// Delete project by given ID.
 		if err := db.DeleteProject(foundedProject.ID); err != nil {
-			return utilities.CheckForError(c, err, 500, "project", err.Error())
+			return utilities.CheckForErrorWithStatusCode(c, err, 400, "project", err.Error())
 		}
 
 		// Return status 204 no content.
 		return c.SendStatus(fiber.StatusNoContent)
 	} else {
 		// Return status 403 and permission denied error message.
-		return utilities.ThrowJSONError(c, 403, "project", "you have no permissions to interact")
+		return utilities.ThrowJSONErrorWithStatusCode(c, 403, "project", "you have no permissions")
 	}
 }
