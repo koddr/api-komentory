@@ -22,4 +22,7 @@ func PublicRoutes(a *fiber.App) {
 	route.Get("/project/:alias", controllers.GetProjectByAlias) // get one project by alias
 	route.Get("/task/:task_id", controllers.GetTaskByID)        // get one task by ID
 	route.Get("/answer/:answer_id", controllers.GetAnswerByID)  // get one answer by ID
+
+	// Routes for webhooks (only POST) methods:
+	route.Post("/webhook/postmark/subscription", controllers.UpdateUserSubscription) // update Postmark subscription
 }

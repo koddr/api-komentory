@@ -180,7 +180,7 @@ func UpdateTask(c *fiber.Ctx) error {
 
 	// Only the creator can delete his task.
 	if foundedTask.UserID == userID {
-		// Set initialized default data for task:
+		// Set default data for task:
 		task.UpdatedAt = time.Now()
 		task.UserID = userID
 		task.ProjectID = foundedTask.ProjectID

@@ -169,3 +169,23 @@ func (q *UserQueries) UpdateUserAttrs(id uuid.UUID, u *models.UserAttrs) error {
 	// This query returns nothing.
 	return nil
 }
+
+// UpdateUserSettings method for updating user settings by given user ID.
+func (q *UserQueries) UpdateUserSettings(id uuid.UUID, u *models.UserSettings) error {
+	// Define query string.
+	query := `
+	UPDATE users 
+	SET updated_at = $2::timestamp, user_settings = $3::jsonb 
+	WHERE id = $1::uuid
+	`
+
+	// Send query to database.
+	_, err := q.Exec(query, id, time.Now(), u)
+	if err != nil {
+		// Return only error.
+		return err
+	}
+
+	// This query returns nothing.
+	return nil
+}
