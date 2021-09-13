@@ -25,7 +25,8 @@ func UpdateUserSubscription(c *fiber.Ctx) error {
 	// Validate webhook fields.
 	if err := validate.Struct(subscriptionChange); err != nil {
 		return utilities.CheckForError(
-			c, err, 400, "webhook", fmt.Sprintf("validation error, %v", utilities.ValidatorErrors(err)),
+			c, err, 400, "postmark webhook",
+			fmt.Sprintf("validation error, %v", utilities.ValidatorErrors(err)),
 		)
 	}
 
