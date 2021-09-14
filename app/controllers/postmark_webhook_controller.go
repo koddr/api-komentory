@@ -4,6 +4,7 @@ import (
 	"Komentory/api/app/models"
 	"Komentory/api/platform/database"
 	"fmt"
+	"os"
 
 	"github.com/Komentory/utilities"
 	"github.com/gofiber/fiber/v2"
@@ -11,6 +12,14 @@ import (
 
 // UpdateUserSubscription method to update user email subscriptions.
 func UpdateUserSubscription(c *fiber.Ctx) error {
+	// Define User-Agent Header.
+	postmarkUserAgentHeader := c.Get("User-Agent")
+
+	// Check, if User-Agent Header is set.
+	if postmarkUserAgentHeader != os.Getenv("POSTMARK_USER_AGENT_HEADER") {
+		return utilities.ThrowJSONErrorWithStatusCode(c, 400, "postmark webhook", "bad User-Agent header")
+	}
+
 	// Create a new user change email subscription struct.
 	subscriptionChange := &models.PostmarkSuppressSendingWebhook{}
 
