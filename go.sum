@@ -40,6 +40,8 @@ github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0/go.mod h1:fyg78
 github.com/gofiber/fiber/v2 v2.17.0/go.mod h1:iftruuHGkRYGEXVISmdD7HTYWyfS2Bh+Dkfq4n/1Owg=
 github.com/gofiber/fiber/v2 v2.18.0 h1:xCWYSVoTNibHpzfciPwUSZGiTyTpTXYchCwynuJU09s=
 github.com/gofiber/fiber/v2 v2.18.0/go.mod h1:/LdZHMUXZvTTo7gU4+b1hclqCAdoQphNQ9bi9gutPyI=
+github.com/gofiber/helmet/v2 v2.2.1 h1:6dhsAF5WZS76RUFtRFVs7QgZeHPQyz+TzvWzshzorNs=
+github.com/gofiber/helmet/v2 v2.2.1/go.mod h1:HdphjGOc0HmOjuVzMcr21DRPpqt6LIiF/3wsgznx7O0=
 github.com/gofiber/jwt/v2 v2.2.7 h1:MgXZV+ak+FiRVepD3btHBxWcyxlFzTDGXJv78dU1sIE=
 github.com/gofiber/jwt/v2 v2.2.7/go.mod h1:yaOHLccYXJidk1HX/EiIdIL+Z1xmY2wnIv6hgViw384=
 github.com/gofrs/uuid v4.0.0+incompatible h1:1SD/1F5pU8p29ybwgQSwpQk+mwdRrXCYuPhW6m+TnJw=

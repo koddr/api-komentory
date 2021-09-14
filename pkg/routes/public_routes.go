@@ -2,6 +2,7 @@ package routes
 
 import (
 	"Komentory/api/app/controllers"
+	"Komentory/api/pkg/middleware"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -12,7 +13,7 @@ func PublicRoutes(a *fiber.App) {
 	route := a.Group("/v1")
 
 	// Routes for GET method (arrays):
-	route.Get("/projects", controllers.GetProjects)                              // get list of all projects
+	route.Get("/projects", middleware.Cached(), controllers.GetProjects)         // get list of all projects
 	route.Get("/project/:project_id/tasks", controllers.GetTasksByProjectID)     // get list of all tasks by project ID
 	route.Get("/project/:project_id/answers", controllers.GetAnswersByProjectID) // get list of all answers by project ID
 	route.Get("/task/:task_id/answers", controllers.GetAnswersByTaskID)          // get list of all answers by task ID

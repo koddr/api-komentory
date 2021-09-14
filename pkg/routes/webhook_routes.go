@@ -13,5 +13,9 @@ func WebhookRoutes(a *fiber.App) {
 	route := a.Group("/v1")
 
 	// Routes for POST method:
-	route.Post("/webhook/postmark/subscription", middleware.BasicAuthProtected(), controllers.UpdateUserSubscription) // update Postmark subscription
+	route.Post(
+		"/webhook/postmark/subscription",
+		middleware.BasicAuthProtected(),    // basic authentication
+		controllers.UpdateUserSubscription, // update Postmark subscription
+	)
 }
