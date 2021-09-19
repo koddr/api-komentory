@@ -10,8 +10,8 @@ import (
 // WebhookRoutes func for describe group of webhook routes.
 func WebhookRoutes(a *fiber.App) {
 	// Create routes group.
-	route := a.Group("/v1", middleware.BasicAuthProtected())
+	r := a.Group("/v1")
 
-	// Routes for POST method:
-	route.Post("/webhook/postmark/subscription", controllers.UpdateUserSubscription) // update email subscriptions
+	// Routes for POST method (with BasicAuth):
+	r.Post("/webhook/postmark/subscriptions", middleware.BasicAuthProtected(), controllers.UpdateUserSubscriptions) // update email subscriptions
 }

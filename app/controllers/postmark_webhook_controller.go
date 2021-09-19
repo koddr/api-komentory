@@ -10,8 +10,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// UpdateUserSubscription method to update user email subscriptions.
-func UpdateUserSubscription(c *fiber.Ctx) error {
+// UpdateUserSubscriptions method to update user email subscriptions.
+func UpdateUserSubscriptions(c *fiber.Ctx) error {
 	// Define User-Agent Header.
 	postmarkUserAgentHeader := c.Get("User-Agent")
 
