@@ -44,6 +44,36 @@ func (q *TaskQueries) GetTaskByID(id uuid.UUID) (models.Task, int, error) {
 	}
 }
 
+// GetTaskByAlias method for getting one task by given alias.
+func (q *TaskQueries) GetTaskByAlias(alias string) (models.Task, int, error) {
+	// Define project variable.
+	task := models.Task{}
+
+	// Define query string.
+	query := `
+	SELECT * 
+	FROM tasks 
+	WHERE alias = $1::varchar 
+	LIMIT 1
+	`
+
+	// Send query to database.
+	err := q.Get(&task, query, alias)
+
+	// Get quey result.
+	switch err {
+	case nil:
+		// Return object and 200 OK.
+		return task, fiber.StatusOK, nil
+	case sql.ErrNoRows:
+		// Return empty object and 404 error.
+		return task, fiber.StatusNotFound, err
+	default:
+		// Return empty object and 400 error.
+		return task, fiber.StatusBadRequest, err
+	}
+}
+
 // GetTasksByProjectID method for getting all tasks for given project.
 func (q *TaskQueries) GetTasksByProjectID(project_id uuid.UUID) ([]models.TaskList, int, error) {
 	// Define project variable.
@@ -74,8 +104,8 @@ func (q *TaskQueries) GetTasksByProjectID(project_id uuid.UUID) ([]models.TaskLi
 	}
 }
 
-// CreateTask method for creating project by given Task object.
-func (q *TaskQueries) CreateTask(t *models.Task) error {
+// CreateNewTask method for creating a new task.
+func (q *TaskQueries) CreateNewTask(t *models.Task) error {
 	// Define query string.
 	query := `
 	INSERT INTO tasks 

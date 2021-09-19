@@ -7,73 +7,11 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/Komentory/utilities"
 	"github.com/gofiber/fiber/v2"
 	"github.com/minio/minio-go/v7"
 )
-
-// GetFileListFromCDN func for return a list of files from CDN.
-func GetFileListFromCDN(c *fiber.Ctx) error {
-	// Get claims from JWT.
-	_, err := utilities.TokenValidateExpireTime(c)
-	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, 401, "jwt", err.Error())
-	}
-
-	// Create CDN connection.
-	connDOSpaces, err := cdn.DOSpacesConnection()
-	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, 500, "cdn", err.Error())
-	}
-
-	// Create context with cancel.
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel() // auto close
-
-	// Get list of files from CDN.
-	listObjectsChannel := connDOSpaces.ListObjects(
-		ctx,
-		os.Getenv("DO_SPACES_BUCKET_NAME"),
-		minio.ListObjectsOptions{
-			Prefix:    os.Getenv("DO_SPACES_UPLOADS_FOLDER_NAME"),
-			Recursive: true,
-		},
-	)
-
-	// Define File struct for object list.
-	objects := []*models.FileFromCDN{}
-
-	// Range object list from CDN for create a new Go object for JSON serialization.
-	for object := range listObjectsChannel {
-		// Check, if received object is valid.
-		if object.Err != nil {
-			return utilities.CheckForError(c, err, 400, "cdn object", object.Err.Error())
-		}
-
-		// Skip upload folder from list, only files.
-		if !strings.HasSuffix(object.Key, "/") {
-			// Create a new File struct from object info.
-			file := &models.FileFromCDN{
-				Key:       object.Key,
-				ETag:      object.ETag,
-				VersionID: object.VersionID,
-				URL:       fmt.Sprintf("%v/%v", os.Getenv("CDN_PUBLIC_URL"), object.Key),
-			}
-
-			// Add this file to objects list.
-			objects = append(objects, file)
-		}
-	}
-
-	// Return status 200 OK.
-	return c.JSON(fiber.Map{
-		"status":  fiber.StatusOK,
-		"count":   len(objects),
-		"objects": objects,
-	})
-}
 
 // PutFileToCDN func for upload a file to CDN.
 // Allowed types: image, document.

@@ -10,29 +10,24 @@ import (
 // PrivateRoutes func for describe group of private routes.
 func PrivateRoutes(a *fiber.App) {
 	// Create routes group.
-	route := a.Group("/v1")
-
-	// Routes for GET method:
-	route.Get("/cdn/list", middleware.JWTProtected(), controllers.GetFileListFromCDN) // get file list from CDN
+	route := a.Group("/v1", middleware.JWTProtected())
 
 	// Routes for POST method:
-	route.Post("/project", middleware.JWTProtected(), controllers.CreateProject) // create a new project
-	route.Post("/task", middleware.JWTProtected(), controllers.CreateTask)       // create a new task
-	route.Post("/answer", middleware.JWTProtected(), controllers.CreateAnswer)   // create a new answer
-
-	// Routes for PUT method:
-	route.Put("/project", middleware.JWTProtected(), controllers.UpdateProject)   // update one project
-	route.Put("/task", middleware.JWTProtected(), controllers.UpdateTask)         // update one task
-	route.Put("/answer", middleware.JWTProtected(), controllers.UpdateAnswer)     // update one answer
-	route.Put("/cdn/upload", middleware.JWTProtected(), controllers.PutFileToCDN) // upload file object to CDN
+	route.Post("/project", controllers.CreateNewProject) // create a new project
+	route.Post("/task", controllers.CreateNewTask)       // create a new task
+	route.Post("/answer", controllers.CreateNewAnswer)   // create a new answer
 
 	// Routes for PATCH method:
-	route.Patch("/user/edit/password", middleware.JWTProtected(), controllers.UpdateUserPassword) // update user password
-	route.Patch("/user/edit/attrs", middleware.JWTProtected(), controllers.UpdateUserAttrs)       // update user attrs
+	route.Patch("/project", controllers.UpdateProject) // update one project
+	route.Patch("/task", controllers.UpdateTask)       // update one task
+	route.Patch("/answer", controllers.UpdateAnswer)   // update one answer
+
+	// Routes for PUT method:
+	route.Put("/cdn/upload", controllers.PutFileToCDN) // upload file object to CDN
 
 	// Routes for DELETE method:
-	route.Delete("/project", middleware.JWTProtected(), controllers.DeleteProject)        // delete one project
-	route.Delete("/task", middleware.JWTProtected(), controllers.DeleteTask)              // delete one task
-	route.Delete("/answer", middleware.JWTProtected(), controllers.DeleteAnswer)          // delete one answer
-	route.Delete("/cdn/remove", middleware.JWTProtected(), controllers.RemoveFileFromCDN) // delete one file from CDN
+	route.Delete("/project", controllers.DeleteProject)        // delete one project
+	route.Delete("/task", controllers.DeleteTask)              // delete one task
+	route.Delete("/answer", controllers.DeleteAnswer)          // delete one answer
+	route.Delete("/cdn/remove", controllers.RemoveFileFromCDN) // remove one file from CDN
 }

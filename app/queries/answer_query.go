@@ -44,6 +44,36 @@ func (q *AnswerQueries) GetAnswerByID(id uuid.UUID) (models.Answer, int, error) 
 	}
 }
 
+// GetAnswerByAlias method for getting one answer by given alias.
+func (q *AnswerQueries) GetAnswerByAlias(alias string) (models.Answer, int, error) {
+	// Define project variable.
+	task := models.Answer{}
+
+	// Define query string.
+	query := `
+	SELECT * 
+	FROM answers 
+	WHERE alias = $1::varchar 
+	LIMIT 1
+	`
+
+	// Send query to database.
+	err := q.Get(&task, query, alias)
+
+	// Get quey result.
+	switch err {
+	case nil:
+		// Return object and 200 OK.
+		return task, fiber.StatusOK, nil
+	case sql.ErrNoRows:
+		// Return empty object and 404 error.
+		return task, fiber.StatusNotFound, err
+	default:
+		// Return empty object and 400 error.
+		return task, fiber.StatusBadRequest, err
+	}
+}
+
 // GetAnswersByProjectID method for getting all answers for given project.
 func (q *AnswerQueries) GetAnswersByProjectID(project_id uuid.UUID) ([]models.Answer, int, error) {
 	// Define project variable.

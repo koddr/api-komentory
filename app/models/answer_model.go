@@ -22,20 +22,20 @@ type Answer struct {
 	AnswerAttrs  AnswerAttrs `db:"answer_attrs" json:"answer_attrs" validate:"required,dive"`
 }
 
+// AnswerAttrs struct to describe answer attributes.
+type AnswerAttrs struct {
+	Text      string   `json:"text" validate:"required"`
+	Documents []string `json:"documents"`
+	Images    []string `json:"images"`
+	Links     []string `json:"links"`
+}
+
 // AnswerList struct to describe answer list object.
 type AnswerList struct {
 	ID          uuid.UUID   `db:"id" json:"id" validate:"required,uuid"`
 	CreatedAt   time.Time   `db:"created_at" json:"created_at"`
 	UpdatedAt   time.Time   `db:"updated_at" json:"updated_at"`
 	AnswerAttrs AnswerAttrs `db:"answer_attrs" json:"answer_attrs" validate:"required,dive"`
-}
-
-// AnswerAttrs struct to describe answer attributes.
-type AnswerAttrs struct {
-	Title       string `json:"title" validate:"required,lte=255"`
-	Description string `json:"description" validate:"required"`
-	Picture     string `json:"picture"`
-	URL         string `json:"url"`
 }
 
 // Value make the AnswerAttrs struct implement the driver.Valuer interface.

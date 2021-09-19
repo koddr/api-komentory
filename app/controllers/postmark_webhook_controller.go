@@ -57,8 +57,8 @@ func UpdateUserSubscription(c *fiber.Ctx) error {
 	// If Postmark pushed SuppressSending attribute with false,
 	// it means reactivation (user was subscribed again).
 	if !subscriptionChange.SuppressSending {
-		userSettings.TransactionalEmailSubscription = true
-		userSettings.MarketingEmailSubscription = true
+		userSettings.EmailSubscriptions.Transactional = true
+		userSettings.EmailSubscriptions.Marketing = true
 	}
 
 	// Validate user settings fields.

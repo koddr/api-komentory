@@ -21,8 +21,8 @@ func GetProjects(c *fiber.Ctx) error {
 	}
 
 	// Get all projects.
-	projects, errGetProjects := db.GetProjects()
-	if errGetProjects != nil {
+	projects, err := db.GetProjects()
+	if err != nil {
 		return utilities.CheckForError(c, err, 400, "projects", err.Error())
 	}
 
@@ -34,13 +34,10 @@ func GetProjects(c *fiber.Ctx) error {
 	})
 }
 
-// GetProjectsByUserID func for get all exists projects by user ID.
-func GetProjectsByUserID(c *fiber.Ctx) error {
+// GetProjectsByUsername func for get all exists projects by given username.
+func GetProjectsByUsername(c *fiber.Ctx) error {
 	// Catch project ID from URL.
-	userID, err := uuid.Parse(c.Params("user_id"))
-	if err != nil {
-		return utilities.CheckForError(c, err, 400, "user id", err.Error())
-	}
+	username := c.Params("username")
 
 	// Create database connection.
 	db, err := database.OpenDBConnection()
@@ -48,10 +45,10 @@ func GetProjectsByUserID(c *fiber.Ctx) error {
 		return utilities.CheckForErrorWithStatusCode(c, err, 500, "database", err.Error())
 	}
 
-	// Get all projects.
-	projects, status, err := db.GetProjectsByUserID(userID)
+	// Get all projects by username.
+	projects, err := db.GetProjectsByUsername(username)
 	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, status, "projects", err.Error())
+		return utilities.CheckForError(c, err, 400, "projects", err.Error())
 	}
 
 	// Return status 200 OK.
@@ -94,8 +91,8 @@ func GetProjectByAlias(c *fiber.Ctx) error {
 	})
 }
 
-// CreateProject func for create a new project.
-func CreateProject(c *fiber.Ctx) error {
+// CreateNewProject func for create a new project.
+func CreateNewProject(c *fiber.Ctx) error {
 	// Set needed credentials.
 	credentials := []string{
 		utilities.GenerateCredential("projects", "create", false),
@@ -132,7 +129,7 @@ func CreateProject(c *fiber.Ctx) error {
 	project.CreatedAt = time.Now()
 	project.UserID = claims.UserID
 	project.Alias = randomAlias
-	project.ProjectStatus = 0 // 0 == draft, 1 == active, 2 == blocked
+	project.ProjectStatus = 0 // 0 == draft, 1 == active, 2 == unpublished
 
 	// Create a new validator for a Project model.
 	validate := utilities.NewValidator()
@@ -145,7 +142,7 @@ func CreateProject(c *fiber.Ctx) error {
 	}
 
 	// Create a new project with given attrs.
-	if err := db.CreateProject(project); err != nil {
+	if err := db.CreateNewProject(project); err != nil {
 		return utilities.CheckForErrorWithStatusCode(c, err, 400, "project", err.Error())
 	}
 

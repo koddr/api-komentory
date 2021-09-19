@@ -38,6 +38,30 @@ func GetAnswerByID(c *fiber.Ctx) error {
 	})
 }
 
+// GetAnswerByAlias func for get one answer by alias.
+func GetAnswerByAlias(c *fiber.Ctx) error {
+	// Catch answer ID from URL.
+	alias := c.Params("alias")
+
+	// Create database connection.
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return utilities.CheckForErrorWithStatusCode(c, err, 500, "database", err.Error())
+	}
+
+	// Get one answer.
+	answer, status, err := db.GetAnswerByAlias(alias)
+	if err != nil {
+		return utilities.CheckForErrorWithStatusCode(c, err, status, "answer", err.Error())
+	}
+
+	// Return status 200 OK.
+	return c.JSON(fiber.Map{
+		"status": fiber.StatusOK,
+		"answer": answer,
+	})
+}
+
 // GetAnswersByProjectID func for get all exists answers by project ID.
 func GetAnswersByProjectID(c *fiber.Ctx) error {
 	// Catch project ID from URL.
@@ -94,8 +118,8 @@ func GetAnswersByTaskID(c *fiber.Ctx) error {
 	})
 }
 
-// CreateAnswer func for create a new answer for project.
-func CreateAnswer(c *fiber.Ctx) error {
+// CreateNewAnswer func for create a new answer for project.
+func CreateNewAnswer(c *fiber.Ctx) error {
 	// Set needed credentials.
 	credentials := []string{
 		utilities.GenerateCredential("answers", "create", false),

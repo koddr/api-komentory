@@ -17,7 +17,7 @@ type ProjectQueries struct {
 // GetProjects method for getting all project.
 func (q *ProjectQueries) GetProjects() ([]models.Project, error) {
 	// Define project variable.
-	project := []models.Project{}
+	projects := []models.Project{}
 
 	// Define query string.
 	query := `
@@ -27,44 +27,38 @@ func (q *ProjectQueries) GetProjects() ([]models.Project, error) {
 	`
 
 	// Send query to database.
-	err := q.Select(&project, query)
+	err := q.Select(&projects, query)
 	if err != nil {
 		// Return empty object and error.
-		return project, err
+		return projects, err
 	}
 
 	// Return query result.
-	return project, nil
+	return projects, nil
 }
 
-// GetProjectsByUserID method for getting all project by given user ID.
-func (q *ProjectQueries) GetProjectsByUserID(user_id uuid.UUID) ([]models.Project, int, error) {
+// GetProjectsByUsername method for getting all project by given username.
+func (q *ProjectQueries) GetProjectsByUsername(username string) ([]models.Project, error) {
 	// Define project variable.
-	project := []models.Project{}
+	projects := []models.Project{}
 
 	// Define query string.
 	query := `
 	SELECT * 
-	FROM projects 
-	WHERE (user_id = $1::uuid AND project_status = 1) 
+	FROM projects
+	WHERE username = $1::varchar 
 	ORDER BY created_at DESC
 	`
 
 	// Send query to database.
-	err := q.Select(&project, query, user_id)
-
-	// Get query result.
-	switch err {
-	case nil:
-		// Return object and 200 OK.
-		return project, fiber.StatusOK, nil
-	case sql.ErrNoRows:
-		// Return empty object and 404 error.
-		return project, fiber.StatusNotFound, err
-	default:
-		// Return empty object and 400 error.
-		return project, fiber.StatusBadRequest, err
+	err := q.Select(&projects, query)
+	if err != nil {
+		// Return empty object and error.
+		return projects, err
 	}
+
+	// Return query result.
+	return projects, nil
 }
 
 // GetProjectByID method for getting one project by given ID.
@@ -76,7 +70,7 @@ func (q *ProjectQueries) GetProjectByID(id uuid.UUID) (models.Project, int, erro
 	query := `
 	SELECT * 
 	FROM projects 
-	WHERE id = $1::uuid
+	WHERE id = $1::uuid 
 	LIMIT 1
 	`
 
@@ -106,7 +100,7 @@ func (q *ProjectQueries) GetProjectByAlias(alias string) (models.Project, int, e
 	query := `
 	SELECT * 
 	FROM projects 
-	WHERE alias = $1::varchar
+	WHERE alias = $1::varchar 
 	LIMIT 1
 	`
 
@@ -128,7 +122,7 @@ func (q *ProjectQueries) GetProjectByAlias(alias string) (models.Project, int, e
 }
 
 // CreateProject method for creating project by given Project object.
-func (q *ProjectQueries) CreateProject(p *models.Project) error {
+func (q *ProjectQueries) CreateNewProject(p *models.Project) error {
 	// Define query string.
 	query := `
 	INSERT INTO projects 

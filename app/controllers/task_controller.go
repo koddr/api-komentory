@@ -46,6 +46,38 @@ func GetTaskByID(c *fiber.Ctx) error {
 	})
 }
 
+// GetTaskByAlias func for get one task by alias.
+func GetTaskByAlias(c *fiber.Ctx) error {
+	// Catch task alias from URL.
+	alias := c.Params("alias")
+
+	// Create database connection.
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return utilities.CheckForErrorWithStatusCode(c, err, 500, "database", err.Error())
+	}
+
+	// Get one task.
+	task, status, err := db.GetTaskByAlias(alias)
+	if err != nil {
+		return utilities.CheckForErrorWithStatusCode(c, err, status, "task", err.Error())
+	}
+
+	// Get all answers for this task ID.
+	answers, status, err := db.GetAnswersByProjectID(task.ID)
+	if err != nil {
+		return utilities.CheckForErrorWithStatusCode(c, err, status, "answers", err.Error())
+	}
+
+	// Return status 200 OK.
+	return c.JSON(fiber.Map{
+		"status":        fiber.StatusOK,
+		"task":          task,
+		"answers_count": len(answers),
+		"answers":       answers,
+	})
+}
+
 // GetTasksByProjectID func for get all exists tasks by project ID.
 func GetTasksByProjectID(c *fiber.Ctx) error {
 	// Catch project ID from URL.
@@ -74,8 +106,8 @@ func GetTasksByProjectID(c *fiber.Ctx) error {
 	})
 }
 
-// CreateTask func for create a new task for project.
-func CreateTask(c *fiber.Ctx) error {
+// CreateNewTask func for create a new task for project.
+func CreateNewTask(c *fiber.Ctx) error {
 	// Set needed credentials.
 	credentials := []string{
 		utilities.GenerateCredential("tasks", "create", false),
@@ -130,7 +162,7 @@ func CreateTask(c *fiber.Ctx) error {
 		}
 
 		// Create a new task with given attrs.
-		if err := db.CreateTask(task); err != nil {
+		if err := db.CreateNewTask(task); err != nil {
 			return utilities.CheckForErrorWithStatusCode(c, err, 400, "task", err.Error())
 		}
 

@@ -22,10 +22,12 @@ type Project struct {
 
 // ProjectAttrs struct to describe project attributes.
 type ProjectAttrs struct {
-	Title       string `json:"title" validate:"required,lte=255"`
-	Description string `json:"description" validate:"required"`
-	Picture     string `json:"picture"`
-	WebsiteURL  string `json:"website_url"`
+	Title       string   `json:"title" validate:"required,lte=255"`
+	Description string   `json:"description" validate:"required"`
+	Category    string   `json:"category" validate:"required"`
+	WebsiteURL  string   `json:"website_url"`
+	Picture     string   `json:"picture"`
+	Tags        []string `json:"tags"`
 }
 
 // Value make the ProjectAttrs struct implement the driver.Valuer interface.
