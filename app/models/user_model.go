@@ -4,10 +4,8 @@ import "github.com/google/uuid"
 
 // User struct to describe User object.
 type User struct {
-	ID         uuid.UUID `db:"id" json:"id" validate:"required,uuid"`
-	Email      string    `db:"email" json:"email" validate:"required,email,lte=255"`
-	Username   string    `db:"username" json:"username" validate:"required,lte=18"`
-	UserStatus int       `db:"user_status" json:"user_status" validate:"int"`
+	ID    uuid.UUID `json:"id" validate:"required,uuid"`
+	Email string    `json:"email" validate:"required,email,lte=255"`
 }
 
 // UserSettings struct to describe user settings.

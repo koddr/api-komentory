@@ -22,7 +22,7 @@ func (q *UserQueries) GetUserByEmail(email string) (models.User, int, error) {
 
 	// Define query string.
 	query := `
-	SELECT * 
+	SELECT id, email 
 	FROM users 
 	WHERE email = $1::varchar
 	`
