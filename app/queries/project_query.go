@@ -15,7 +15,7 @@ type ProjectQueries struct {
 }
 
 // GetProjects method for getting all project.
-func (q *ProjectQueries) GetProjects() ([]models.Project, error) {
+func (q *ProjectQueries) GetProjects() ([]models.Project, int, error) {
 	// Define project variable.
 	projects := []models.Project{}
 
@@ -28,37 +28,50 @@ func (q *ProjectQueries) GetProjects() ([]models.Project, error) {
 
 	// Send query to database.
 	err := q.Select(&projects, query)
-	if err != nil {
-		// Return empty object and error.
-		return projects, err
-	}
 
 	// Return query result.
-	return projects, nil
+	switch err {
+	case nil:
+		// Return object and 200 OK.
+		return projects, fiber.StatusOK, nil
+	case sql.ErrNoRows:
+		// Return empty object and 404 error.
+		return projects, fiber.StatusNotFound, err
+	default:
+		// Return empty object and 400 error.
+		return projects, fiber.StatusBadRequest, err
+	}
 }
 
 // GetProjectsByUsername method for getting all project by given username.
-func (q *ProjectQueries) GetProjectsByUsername(username string) ([]models.Project, error) {
+func (q *ProjectQueries) GetProjectsByUsername(username string) ([]models.Project, int, error) {
 	// Define project variable.
 	projects := []models.Project{}
 
 	// Define query string.
 	query := `
-	SELECT * 
-	FROM projects
-	WHERE username = $1::varchar 
-	ORDER BY created_at DESC
+	SELECT projects.* 
+	FROM projects 
+	INNER JOIN users ON projects.user_id = users.id 
+	WHERE users.username = $1::varchar 
+	ORDER BY projects.created_at DESC
 	`
 
 	// Send query to database.
-	err := q.Select(&projects, query)
-	if err != nil {
-		// Return empty object and error.
-		return projects, err
-	}
+	err := q.Select(&projects, query, username)
 
-	// Return query result.
-	return projects, nil
+	// Get query result.
+	switch err {
+	case nil:
+		// Return object and 200 OK.
+		return projects, fiber.StatusOK, nil
+	case sql.ErrNoRows:
+		// Return empty object and 404 error.
+		return projects, fiber.StatusNotFound, err
+	default:
+		// Return empty object and 400 error.
+		return projects, fiber.StatusBadRequest, err
+	}
 }
 
 // GetProjectByID method for getting one project by given ID.

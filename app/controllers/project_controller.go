@@ -21,9 +21,9 @@ func GetProjects(c *fiber.Ctx) error {
 	}
 
 	// Get all projects.
-	projects, err := db.GetProjects()
+	projects, status, err := db.GetProjects()
 	if err != nil {
-		return utilities.CheckForError(c, err, 400, "projects", err.Error())
+		return utilities.CheckForError(c, err, status, "projects", err.Error())
 	}
 
 	// Return status 200 OK.
@@ -46,9 +46,9 @@ func GetProjectsByUsername(c *fiber.Ctx) error {
 	}
 
 	// Get all projects by username.
-	projects, err := db.GetProjectsByUsername(username)
+	projects, status, err := db.GetProjectsByUsername(username)
 	if err != nil {
-		return utilities.CheckForError(c, err, 400, "projects", err.Error())
+		return utilities.CheckForError(c, err, status, "projects", err.Error())
 	}
 
 	// Return status 200 OK.
@@ -104,18 +104,12 @@ func CreateNewProject(c *fiber.Ctx) error {
 		return utilities.CheckForErrorWithStatusCode(c, err, 401, "jwt", err.Error())
 	}
 
-	// Create new Project struct
-	project := &models.Project{}
+	// Create new ProjectAttrs struct
+	projectAttrs := &models.ProjectAttrs{}
 
 	// Check, if received JSON data is valid.
-	if err := c.BodyParser(project); err != nil {
+	if err := c.BodyParser(projectAttrs); err != nil {
 		return utilities.CheckForError(c, err, 400, "project", err.Error())
-	}
-
-	// Create database connection.
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, 500, "database", err.Error())
 	}
 
 	// Generate random string for the project's alias.
@@ -124,12 +118,18 @@ func CreateNewProject(c *fiber.Ctx) error {
 		return utilities.CheckForError(c, err, 400, "project alias", err.Error())
 	}
 
-	// Set initialized default data for project:
+	// Create new ProjectAttrs struct
+	project := &models.Project{}
+
+	// Set initial data for project:
 	project.ID = uuid.New()
 	project.CreatedAt = time.Now()
 	project.UserID = claims.UserID
 	project.Alias = randomAlias
 	project.ProjectStatus = 0 // 0 == draft, 1 == active, 2 == unpublished
+
+	// Set project attributes from request body:
+	project.ProjectAttrs = *projectAttrs
 
 	// Create a new validator for a Project model.
 	validate := utilities.NewValidator()
@@ -139,6 +139,12 @@ func CreateNewProject(c *fiber.Ctx) error {
 		return utilities.CheckForError(
 			c, err, 400, "project", fmt.Sprintf("validation error, %v", utilities.ValidatorErrors(err)),
 		)
+	}
+
+	// Create database connection.
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return utilities.CheckForErrorWithStatusCode(c, err, 500, "database", err.Error())
 	}
 
 	// Create a new project with given attrs.
