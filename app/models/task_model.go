@@ -21,22 +21,28 @@ type Task struct {
 	TaskAttrs  TaskAttrs `db:"task_attrs" json:"task_attrs" validate:"required,dive"`
 }
 
-// TaskAttrs struct to describe task attributes.
-type TaskAttrs struct {
-	Name        string   `json:"name" validate:"required,lte=255"`
-	Description string   `json:"description" validate:"required"`
-	Steps       []string `json:"steps" validate:"required"`
-	Documents   []string `json:"documents"`
-	Images      []string `json:"images"`
-	Links       []string `json:"links"`
-}
-
 // TaskList struct to describe task list object.
 type TaskList struct {
 	ID        uuid.UUID `db:"id" json:"id" validate:"required,uuid"`
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
 	TaskAttrs TaskAttrs `db:"task_attrs" json:"task_attrs" validate:"required,dive"`
+}
+
+// TaskAttrs struct to describe task attributes.
+type TaskAttrs struct {
+	Name        string     `json:"name" validate:"required,lte=255"`
+	Description string     `json:"description" validate:"required"`
+	Steps       []TaskStep `json:"steps" validate:"required,dive"`
+	Documents   []string   `json:"documents"`
+	Images      []string   `json:"images"`
+	Links       []string   `json:"links"`
+}
+
+// TaskStep struct to describe task step object.
+type TaskStep struct {
+	Position    int    `json:"position" validate:"required,int"`
+	Description string `json:"description" validate:"required"`
 }
 
 // Value make the TaskAttrs struct implement the driver.Valuer interface.
