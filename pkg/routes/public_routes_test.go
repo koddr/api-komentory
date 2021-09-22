@@ -23,6 +23,12 @@ func TestPublicRoutes(t *testing.T) {
 		expectedCode  int
 	}{
 		{
+			description:   "get all projects",
+			route:         "/v1/projects",
+			expectedError: false,
+			expectedCode:  200,
+		},
+		{
 			description:   "get project by not found alias",
 			route:         "/v1/project/123456",
 			expectedError: false,
