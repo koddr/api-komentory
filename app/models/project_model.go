@@ -18,6 +18,9 @@ type Project struct {
 	Alias         string       `db:"alias" json:"alias" validate:"required,lte=24"`
 	ProjectStatus int          `db:"project_status" json:"project_status" validate:"int"`
 	ProjectAttrs  ProjectAttrs `db:"project_attrs" json:"project_attrs" validate:"required,dive"`
+
+	// Fields for JOIN tables:
+	TasksCount int `db:"tasks_count" json:"tasks_count"` // number of tasks for this project
 }
 
 // ProjectAttrs struct to describe project attributes.

@@ -21,9 +21,16 @@ func (q *ProjectQueries) GetProjects() ([]models.Project, int, error) {
 
 	// Define query string.
 	query := `
-	SELECT * 
-	FROM projects
-	ORDER BY created_at DESC
+	SELECT
+		p.*,
+		COUNT(t.id) AS tasks_count
+	FROM
+		projects AS p
+		LEFT JOIN tasks AS t ON p.id = t.project_id
+	GROUP BY
+		p.id
+	ORDER BY
+		p.created_at DESC
 	`
 
 	// Send query to database.
@@ -50,11 +57,19 @@ func (q *ProjectQueries) GetProjectsByUsername(username string) ([]models.Projec
 
 	// Define query string.
 	query := `
-	SELECT projects.* 
-	FROM projects 
-	INNER JOIN users ON projects.user_id = users.id 
-	WHERE users.username = $1::varchar 
-	ORDER BY projects.created_at DESC
+	SELECT
+		p.*,
+		COUNT(t.id) AS tasks_count
+	FROM
+		projects AS p
+		LEFT JOIN users AS u ON p.user_id = u.id
+		LEFT JOIN tasks AS t ON p.id = t.project_id
+	WHERE
+		u.username = $1::varchar 
+	GROUP BY
+		p.id
+	ORDER BY
+		p.created_at DESC
 	`
 
 	// Send query to database.
@@ -82,8 +97,10 @@ func (q *ProjectQueries) GetProjectByID(id uuid.UUID) (models.Project, int, erro
 	// Define query string.
 	query := `
 	SELECT * 
-	FROM projects 
-	WHERE id = $1::uuid 
+	FROM
+		projects
+	WHERE
+		id = $1::uuid
 	LIMIT 1
 	`
 
@@ -112,8 +129,10 @@ func (q *ProjectQueries) GetProjectByAlias(alias string) (models.Project, int, e
 	// Define query string.
 	query := `
 	SELECT * 
-	FROM projects 
-	WHERE alias = $1::varchar 
+	FROM 
+		projects 
+	WHERE 
+		alias = $1::varchar 
 	LIMIT 1
 	`
 
@@ -166,9 +185,14 @@ func (q *ProjectQueries) CreateNewProject(p *models.Project) error {
 func (q *ProjectQueries) UpdateProject(id uuid.UUID, p *models.Project) error {
 	// Define query string.
 	query := `
-	UPDATE projects 
-	SET updated_at = $2::timestamp, project_status = $3::int, project_attrs = $4::jsonb 
-	WHERE id = $1::uuid
+	UPDATE
+		projects
+	SET
+		updated_at = $2::timestamp,
+		project_status = $3::int,
+		project_attrs = $4::jsonb
+	WHERE
+		id = $1::uuid
 	`
 
 	// Send query to database.
