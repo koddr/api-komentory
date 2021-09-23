@@ -26,7 +26,7 @@ func (q *TaskQueries) GetTaskByID(id uuid.UUID) (models.Task, int, error) {
 		COUNT(a.id) AS answers_count
 	FROM
 		tasks AS t
-		LEFT JOIN answers AS a ON t.id = a.task_id
+		LEFT JOIN answers AS a ON a.task_id = t.id
 	WHERE
 		t.id = $1::uuid
 	GROUP BY
@@ -63,7 +63,7 @@ func (q *TaskQueries) GetTaskByAlias(alias string) (models.Task, int, error) {
 		COUNT(a.id) AS answers_count
 	FROM
 		tasks AS t
-		LEFT JOIN answers AS a ON t.id = a.task_id
+		LEFT JOIN answers AS a ON a.task_id = t.id
 	WHERE
 		t.alias = $1::varchar
 	GROUP BY
@@ -104,7 +104,7 @@ func (q *TaskQueries) GetTasksByProjectID(project_id uuid.UUID) ([]models.TaskLi
 		COUNT(a.id) AS answers_count
 	FROM
 		tasks AS t
-		LEFT JOIN answers AS a ON t.id = a.task_id
+		LEFT JOIN answers AS a ON a.task_id = t.id
 	WHERE
 		t.project_id = $1::uuid
 		AND t.task_status = 1
@@ -139,7 +139,7 @@ func (q *TaskQueries) CreateNewTask(t *models.Task) error {
 	VALUES (
 		$1::uuid, $2::timestamp, $3::timestamp, 
 		$4::uuid, $5::uuid, $6::varchar, 
-		$7::int, $7::jsonb
+		$7::int, $8::jsonb
 	)
 	`
 

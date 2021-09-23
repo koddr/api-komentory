@@ -160,12 +160,19 @@ func CreateNewAnswer(c *fiber.Ctx) error {
 	// Set user ID from JWT data of current user.
 	userID := claims.UserID
 
+	// Generate random string for the answer's alias.
+	randomAlias, err := utilities.GenerateNewNanoID(utilities.LowerCaseWithoutDashesChars, 16)
+	if err != nil {
+		return utilities.CheckForError(c, err, 400, "task alias", err.Error())
+	}
+
 	// Set initialized default data for answer:
 	answer.ID = uuid.New()
 	answer.CreatedAt = time.Now()
 	answer.UserID = userID
 	answer.ProjectID = foundedProject.ID
 	answer.TaskID = foundedTask.ID
+	answer.Alias = randomAlias
 	answer.AnswerStatus = 0 // 0 == draft, 1 == active, 2 == blocked
 
 	// Create a new validator for a Answer model.

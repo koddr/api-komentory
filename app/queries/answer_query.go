@@ -158,8 +158,8 @@ func (q *AnswerQueries) CreateNewAnswer(a *models.Answer) error {
 	INSERT INTO answers 
 	VALUES (
 		$1::uuid, $2::timestamp, $3::timestamp, 
-		$4::varchar, $5::uuid, $6::uuid, 
-		$7::uuid, $8::int, $9::jsonb
+		$4::uuid, $5::uuid, $6::uuid, 
+		$7::varchar, $8::int, $9::jsonb
 	)
 	`
 

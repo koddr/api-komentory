@@ -26,7 +26,7 @@ func (q *ProjectQueries) GetProjects() ([]models.Project, int, error) {
 		COUNT(t.id) AS tasks_count
 	FROM
 		projects AS p
-		LEFT JOIN tasks AS t ON p.id = t.project_id
+		LEFT JOIN tasks AS t ON t.project_id = p.id
 	GROUP BY
 		p.id
 	ORDER BY
@@ -62,8 +62,8 @@ func (q *ProjectQueries) GetProjectsByUsername(username string) ([]models.Projec
 		COUNT(t.id) AS tasks_count
 	FROM
 		projects AS p
-		LEFT JOIN users AS u ON p.user_id = u.id
-		LEFT JOIN tasks AS t ON p.id = t.project_id
+		LEFT JOIN users AS u ON u.id = p.user_id
+		LEFT JOIN tasks AS t ON t.project_id = p.id
 	WHERE
 		u.username = $1::varchar 
 	GROUP BY
@@ -133,7 +133,7 @@ func (q *ProjectQueries) GetProjectByAlias(alias string) (models.Project, int, e
 		COUNT(t.id) AS tasks_count
 	FROM
 		projects AS p
-		LEFT JOIN tasks AS t ON p.id = t.project_id
+		LEFT JOIN tasks AS t ON t.project_id = p.id
 	WHERE
 		p.alias = $1::varchar
 	GROUP BY
