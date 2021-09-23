@@ -21,9 +21,11 @@ func (q *AnswerQueries) GetAnswerByID(id uuid.UUID) (models.Answer, int, error) 
 
 	// Define query string.
 	query := `
-	SELECT * 
-	FROM answers 
-	WHERE id = $1::uuid
+	SELECT *
+	FROM
+		answers
+	WHERE
+		id = $1::uuid
 	LIMIT 1
 	`
 
@@ -51,9 +53,11 @@ func (q *AnswerQueries) GetAnswerByAlias(alias string) (models.Answer, int, erro
 
 	// Define query string.
 	query := `
-	SELECT * 
-	FROM answers 
-	WHERE alias = $1::varchar 
+	SELECT *
+	FROM
+		answers
+	WHERE 
+		alias = $1::varchar
 	LIMIT 1
 	`
 
@@ -81,10 +85,14 @@ func (q *AnswerQueries) GetAnswersByProjectID(project_id uuid.UUID) ([]models.An
 
 	// Define query string.
 	query := `
-	SELECT * 
-	FROM answers 
-	WHERE (project_id = $1::uuid AND answer_status = 1) 
-	ORDER BY created_at DESC
+	SELECT *
+	FROM
+		answers
+	WHERE
+		project_id = $1::uuid
+		AND answer_status = 1
+	ORDER BY
+		created_at DESC
 	`
 
 	// Send query to database.
@@ -111,10 +119,19 @@ func (q *AnswerQueries) GetAnswersByTaskID(task_id uuid.UUID) ([]models.AnswerLi
 
 	// Define query string.
 	query := `
-	SELECT id, created_at, updated_at, answer_attrs 
-	FROM answers 
-	WHERE (task_id = $1::uuid AND answer_status = 1) 
-	ORDER BY created_at DESC
+	SELECT
+		id,
+		created_at,
+		updated_at,
+		alias,
+		answer_attrs
+	FROM
+		answers
+	WHERE
+		task_id = $1::uuid
+		AND answer_status = 1
+	ORDER BY
+		created_at DESC
 	`
 
 	// Send query to database.
@@ -166,9 +183,14 @@ func (q *AnswerQueries) CreateAnswer(a *models.Answer) error {
 func (q *AnswerQueries) UpdateAnswer(id uuid.UUID, a *models.Answer) error {
 	// Define query string.
 	query := `
-	UPDATE answers 
-	SET updated_at = $2::timestamp, answer_status = $3::int, answer_attrs = $4::jsonb 
-	WHERE id = $1::uuid
+	UPDATE
+		answers
+	SET
+		updated_at = $2::timestamp,
+		answer_status = $3::int,
+		answer_attrs = $4::jsonb
+	WHERE
+		id = $1::uuid
 	`
 
 	// Send query to database.
@@ -186,7 +208,7 @@ func (q *AnswerQueries) UpdateAnswer(id uuid.UUID, a *models.Answer) error {
 func (q *AnswerQueries) DeleteAnswer(id uuid.UUID) error {
 	// Define query string.
 	query := `
-	DELETE FROM answers 
+	DELETE FROM answers
 	WHERE id = $1::uuid
 	`
 

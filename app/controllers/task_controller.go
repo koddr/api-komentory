@@ -31,18 +31,10 @@ func GetTaskByID(c *fiber.Ctx) error {
 		return utilities.CheckForErrorWithStatusCode(c, err, status, "task", err.Error())
 	}
 
-	// Get all answers for this task ID.
-	answers, status, err := db.GetAnswersByProjectID(task.ID)
-	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, status, "answers", err.Error())
-	}
-
 	// Return status 200 OK.
 	return c.JSON(fiber.Map{
-		"status":        fiber.StatusOK,
-		"task":          task,
-		"answers_count": len(answers),
-		"answers":       answers,
+		"status": fiber.StatusOK,
+		"task":   task,
 	})
 }
 
@@ -63,18 +55,10 @@ func GetTaskByAlias(c *fiber.Ctx) error {
 		return utilities.CheckForErrorWithStatusCode(c, err, status, "task", err.Error())
 	}
 
-	// Get all answers for this task ID.
-	answers, status, err := db.GetAnswersByProjectID(task.ID)
-	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, status, "answers", err.Error())
-	}
-
 	// Return status 200 OK.
 	return c.JSON(fiber.Map{
-		"status":        fiber.StatusOK,
-		"task":          task,
-		"answers_count": len(answers),
-		"answers":       answers,
+		"status": fiber.StatusOK,
+		"task":   task,
 	})
 }
 

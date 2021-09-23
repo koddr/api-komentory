@@ -22,9 +22,13 @@ func (q *UserQueries) GetUserByEmail(email string) (models.User, int, error) {
 
 	// Define query string.
 	query := `
-	SELECT id, email 
-	FROM users 
-	WHERE email = $1::varchar
+	SELECT
+		id,
+		email
+	FROM
+		users
+	WHERE
+		email = $1::varchar
 	`
 
 	// Send query to database.
@@ -48,9 +52,13 @@ func (q *UserQueries) GetUserByEmail(email string) (models.User, int, error) {
 func (q *UserQueries) UpdateUserSettings(id uuid.UUID, u *models.UserSettings) error {
 	// Define query string.
 	query := `
-	UPDATE users 
-	SET updated_at = $2::timestamp, user_settings = $3::jsonb 
-	WHERE id = $1::uuid
+	UPDATE
+		users
+	SET
+		updated_at = $2::timestamp,
+		user_settings = $3::jsonb
+	WHERE
+		id = $1::uuid
 	`
 
 	// Send query to database.

@@ -19,6 +19,9 @@ type Task struct {
 	Alias      string    `db:"alias" json:"alias" validate:"required,lte=16"`
 	TaskStatus int       `db:"task_status" json:"task_status" validate:"int"`
 	TaskAttrs  TaskAttrs `db:"task_attrs" json:"task_attrs" validate:"required,dive"`
+
+	// Fields for JOIN tables:
+	AnswersCount int `db:"answers_count" json:"answers_count"` // number of answers for this task
 }
 
 // TaskList struct to describe task list object.
@@ -26,7 +29,11 @@ type TaskList struct {
 	ID        uuid.UUID `db:"id" json:"id" validate:"required,uuid"`
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+	Alias     string    `db:"alias" json:"alias" validate:"required,lte=16"`
 	TaskAttrs TaskAttrs `db:"task_attrs" json:"task_attrs" validate:"required,dive"`
+
+	// Fields for JOIN tables:
+	AnswersCount int `db:"answers_count" json:"answers_count"` // number of answers for this task
 }
 
 // TaskAttrs struct to describe task attributes.

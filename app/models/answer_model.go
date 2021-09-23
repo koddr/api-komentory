@@ -35,6 +35,7 @@ type AnswerList struct {
 	ID          uuid.UUID   `db:"id" json:"id" validate:"required,uuid"`
 	CreatedAt   time.Time   `db:"created_at" json:"created_at"`
 	UpdatedAt   time.Time   `db:"updated_at" json:"updated_at"`
+	Alias       string      `db:"alias" json:"alias" validate:"required,lte=16"`
 	AnswerAttrs AnswerAttrs `db:"answer_attrs" json:"answer_attrs" validate:"required,dive"`
 }
 

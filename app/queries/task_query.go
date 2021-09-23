@@ -21,9 +21,16 @@ func (q *TaskQueries) GetTaskByID(id uuid.UUID) (models.Task, int, error) {
 
 	// Define query string.
 	query := `
-	SELECT * 
-	FROM tasks 
-	WHERE id = $1::uuid
+	SELECT
+		t.*,
+		COUNT(a.id) AS answers_count
+	FROM
+		tasks AS t
+		LEFT JOIN answers AS a ON t.id = a.task_id
+	WHERE
+		t.id = $1::uuid
+	GROUP BY
+		t.id
 	LIMIT 1
 	`
 
@@ -51,9 +58,16 @@ func (q *TaskQueries) GetTaskByAlias(alias string) (models.Task, int, error) {
 
 	// Define query string.
 	query := `
-	SELECT * 
-	FROM tasks 
-	WHERE alias = $1::varchar 
+	SELECT
+		t.*,
+		COUNT(a.id) AS answers_count
+	FROM
+		tasks AS t
+		LEFT JOIN answers AS a ON t.id = a.task_id
+	WHERE
+		t.alias = $1::varchar
+	GROUP BY
+		t.id
 	LIMIT 1
 	`
 
@@ -81,10 +95,23 @@ func (q *TaskQueries) GetTasksByProjectID(project_id uuid.UUID) ([]models.TaskLi
 
 	// Define query string.
 	query := `
-	SELECT id, created_at, updated_at, task_attrs 
-	FROM tasks 
-	WHERE (project_id = $1::uuid AND task_status = 1) 
-	ORDER BY created_at DESC
+	SELECT
+		t.id,
+		t.created_at,
+		t.updated_at,
+		t.alias,
+		t.task_attrs,
+		COUNT(a.id) AS answers_count
+	FROM
+		tasks AS t
+		LEFT JOIN answers AS a ON t.id = a.task_id
+	WHERE
+		t.project_id = $1::uuid
+		AND t.task_status = 1
+	GROUP BY
+		t.id
+	ORDER BY
+		t.created_at DESC
 	`
 
 	// Send query to database.
@@ -108,7 +135,7 @@ func (q *TaskQueries) GetTasksByProjectID(project_id uuid.UUID) ([]models.TaskLi
 func (q *TaskQueries) CreateNewTask(t *models.Task) error {
 	// Define query string.
 	query := `
-	INSERT INTO tasks 
+	INSERT INTO tasks
 	VALUES (
 		$1::uuid, $2::timestamp, $3::timestamp, 
 		$4::uuid, $5::uuid, $6::int, 
@@ -136,9 +163,14 @@ func (q *TaskQueries) CreateNewTask(t *models.Task) error {
 func (q *TaskQueries) UpdateTask(id uuid.UUID, t *models.Task) error {
 	// Define query string.
 	query := `
-	UPDATE tasks 
-	SET updated_at = $2::timestamp, task_status = $3::int, task_attrs = $4::jsonb 
-	WHERE id = $1::uuid
+	UPDATE
+		tasks
+	SET
+		updated_at = $2::timestamp,
+		task_status = $3::int,
+		task_attrs = $4::jsonb
+	WHERE
+		id = $1::uuid
 	`
 
 	// Send query to database.
@@ -156,7 +188,7 @@ func (q *TaskQueries) UpdateTask(id uuid.UUID, t *models.Task) error {
 func (q *TaskQueries) DeleteTask(id uuid.UUID) error {
 	// Define query string.
 	query := `
-	DELETE FROM tasks 
+	DELETE FROM tasks
 	WHERE id = $1::uuid
 	`
 

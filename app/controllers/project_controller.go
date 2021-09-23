@@ -76,18 +76,10 @@ func GetProjectByAlias(c *fiber.Ctx) error {
 		return utilities.CheckForErrorWithStatusCode(c, err, status, "project", err.Error())
 	}
 
-	// Get all tasks for this project ID.
-	tasks, status, err := db.GetTasksByProjectID(project.ID)
-	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, status, "tasks", err.Error())
-	}
-
 	// Return status 200 OK.
 	return c.JSON(fiber.Map{
-		"status":      fiber.StatusOK,
-		"project":     project,
-		"tasks_count": len(tasks),
-		"tasks":       tasks,
+		"status":  fiber.StatusOK,
+		"project": project,
 	})
 }
 

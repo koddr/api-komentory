@@ -96,7 +96,7 @@ func (q *ProjectQueries) GetProjectByID(id uuid.UUID) (models.Project, int, erro
 
 	// Define query string.
 	query := `
-	SELECT * 
+	SELECT *
 	FROM
 		projects
 	WHERE
@@ -128,11 +128,16 @@ func (q *ProjectQueries) GetProjectByAlias(alias string) (models.Project, int, e
 
 	// Define query string.
 	query := `
-	SELECT * 
-	FROM 
-		projects 
-	WHERE 
-		alias = $1::varchar 
+	SELECT
+		p.*,
+		COUNT(t.id) AS tasks_count
+	FROM
+		projects AS p
+		LEFT JOIN tasks AS t ON p.id = t.project_id
+	WHERE
+		p.alias = $1::varchar
+	GROUP BY
+		p.id
 	LIMIT 1
 	`
 
@@ -157,7 +162,7 @@ func (q *ProjectQueries) GetProjectByAlias(alias string) (models.Project, int, e
 func (q *ProjectQueries) CreateNewProject(p *models.Project) error {
 	// Define query string.
 	query := `
-	INSERT INTO projects 
+	INSERT INTO projects
 	VALUES (
 		$1::uuid, $2::timestamp, $3::timestamp, 
 		$4::uuid, $5::varchar, $6::int, 
@@ -210,7 +215,7 @@ func (q *ProjectQueries) UpdateProject(id uuid.UUID, p *models.Project) error {
 func (q *ProjectQueries) DeleteProject(id uuid.UUID) error {
 	// Define query string.
 	query := `
-	DELETE FROM projects 
+	DELETE FROM projects
 	WHERE id = $1::uuid
 	`
 
