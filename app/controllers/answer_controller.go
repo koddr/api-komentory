@@ -179,7 +179,7 @@ func CreateNewAnswer(c *fiber.Ctx) error {
 	}
 
 	// Create a new answer with given attrs.
-	if err := db.CreateAnswer(answer); err != nil {
+	if err := db.CreateNewAnswer(answer); err != nil {
 		return utilities.CheckForErrorWithStatusCode(c, err, 400, "answer", err.Error())
 	}
 

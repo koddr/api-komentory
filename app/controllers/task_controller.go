@@ -128,11 +128,18 @@ func CreateNewTask(c *fiber.Ctx) error {
 
 	// Only the creator can add a new task for his project.
 	if foundedProject.UserID == userID {
+		// Generate random string for the project's alias.
+		randomAlias, err := utilities.GenerateNewNanoID(utilities.LowerCaseWithoutDashesChars, 16)
+		if err != nil {
+			return utilities.CheckForError(c, err, 400, "task alias", err.Error())
+		}
+
 		// Set initialized default data for task:
 		task.ID = uuid.New()
 		task.CreatedAt = time.Now()
 		task.UserID = userID
 		task.ProjectID = foundedProject.ID
+		task.Alias = randomAlias
 		task.TaskStatus = 0 // 0 == draft, 1 == active, 2 == blocked
 
 		// Create a new validator for a Task model.

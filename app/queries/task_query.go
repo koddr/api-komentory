@@ -138,8 +138,8 @@ func (q *TaskQueries) CreateNewTask(t *models.Task) error {
 	INSERT INTO tasks
 	VALUES (
 		$1::uuid, $2::timestamp, $3::timestamp, 
-		$4::uuid, $5::uuid, $6::int, 
-		$7::jsonb
+		$4::uuid, $5::uuid, $6::varchar, 
+		$7::int, $7::jsonb
 	)
 	`
 
@@ -147,8 +147,8 @@ func (q *TaskQueries) CreateNewTask(t *models.Task) error {
 	_, err := q.Exec(
 		query,
 		t.ID, t.CreatedAt, t.UpdatedAt,
-		t.UserID, t.ProjectID, t.TaskStatus,
-		t.TaskAttrs,
+		t.UserID, t.ProjectID, t.Alias,
+		t.TaskStatus, t.TaskAttrs,
 	)
 	if err != nil {
 		// Return only error.

@@ -152,14 +152,14 @@ func (q *AnswerQueries) GetAnswersByTaskID(task_id uuid.UUID) ([]models.AnswerLi
 }
 
 // CreateAnswer method for creating answer by given Answer object.
-func (q *AnswerQueries) CreateAnswer(a *models.Answer) error {
+func (q *AnswerQueries) CreateNewAnswer(a *models.Answer) error {
 	// Define query string.
 	query := `
 	INSERT INTO answers 
 	VALUES (
 		$1::uuid, $2::timestamp, $3::timestamp, 
-		$4::uuid, $5::uuid, $6::uuid, 
-		$7::int, $8::jsonb
+		$4::varchar, $5::uuid, $6::uuid, 
+		$7::uuid, $8::int, $9::jsonb
 	)
 	`
 
@@ -168,7 +168,7 @@ func (q *AnswerQueries) CreateAnswer(a *models.Answer) error {
 		query,
 		a.ID, a.CreatedAt, a.UpdatedAt,
 		a.UserID, a.ProjectID, a.TaskID,
-		a.AnswerStatus, a.AnswerAttrs,
+		a.Alias, a.AnswerStatus, a.AnswerAttrs,
 	)
 	if err != nil {
 		// Return only error.

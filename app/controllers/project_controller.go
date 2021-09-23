@@ -105,7 +105,7 @@ func CreateNewProject(c *fiber.Ctx) error {
 	}
 
 	// Generate random string for the project's alias.
-	randomAlias, err := utilities.GenerateNewNanoID("", 24)
+	randomAlias, err := utilities.GenerateNewNanoID(utilities.LowerCaseChars, 24)
 	if err != nil {
 		return utilities.CheckForError(c, err, 400, "project alias", err.Error())
 	}
