@@ -30,8 +30,8 @@ type AnswerAttrs struct {
 	Links     []string `json:"links"`
 }
 
-// AnswerList struct to describe answer list object.
-type AnswerList struct {
+// AnswersList struct to describe answers list object.
+type AnswersList struct {
 	ID          uuid.UUID   `db:"id" json:"id" validate:"required,uuid"`
 	CreatedAt   time.Time   `db:"created_at" json:"created_at"`
 	UpdatedAt   time.Time   `db:"updated_at" json:"updated_at"`

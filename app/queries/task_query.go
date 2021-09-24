@@ -89,9 +89,9 @@ func (q *TaskQueries) GetTaskByAlias(alias string) (models.Task, int, error) {
 }
 
 // GetTasksByProjectID method for getting all tasks for given project.
-func (q *TaskQueries) GetTasksByProjectID(project_id uuid.UUID) ([]models.TaskList, int, error) {
+func (q *TaskQueries) GetTasksByProjectID(project_id uuid.UUID) ([]models.TasksList, int, error) {
 	// Define project variable.
-	tasks := []models.TaskList{}
+	tasks := []models.TasksList{}
 
 	// Define query string.
 	query := `

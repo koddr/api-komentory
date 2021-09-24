@@ -24,8 +24,8 @@ type Task struct {
 	AnswersCount int `db:"answers_count" json:"answers_count"` // number of answers for this task
 }
 
-// TaskList struct to describe task list object.
-type TaskList struct {
+// TasksList struct to describe tasks list object.
+type TasksList struct {
 	ID        uuid.UUID `db:"id" json:"id" validate:"required,uuid"`
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
