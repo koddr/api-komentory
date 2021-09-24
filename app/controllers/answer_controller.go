@@ -3,7 +3,6 @@ package controllers
 import (
 	"Komentory/api/app/models"
 	"Komentory/api/platform/database"
-	"fmt"
 	"time"
 
 	"github.com/Komentory/utilities"
@@ -180,9 +179,7 @@ func CreateNewAnswer(c *fiber.Ctx) error {
 
 	// Validate answer fields.
 	if err := validate.Struct(answer); err != nil {
-		return utilities.CheckForError(
-			c, err, 400, "answer", fmt.Sprintf("validation error, %v", utilities.ValidatorErrors(err)),
-		)
+		return utilities.CheckForValidationError(c, err, 400, "answer")
 	}
 
 	// Create a new answer with given attrs.
@@ -243,9 +240,7 @@ func UpdateAnswer(c *fiber.Ctx) error {
 
 		// Validate answer fields.
 		if err := validate.Struct(answer); err != nil {
-			return utilities.CheckForError(
-				c, err, 400, "answer", fmt.Sprintf("validation error, %v", utilities.ValidatorErrors(err)),
-			)
+			return utilities.CheckForValidationError(c, err, 400, "answer")
 		}
 
 		// Update answer by given ID.
@@ -288,9 +283,7 @@ func DeleteAnswer(c *fiber.Ctx) error {
 
 	// Validate answer fields.
 	if err := validate.StructPartial(answer, "id"); err != nil {
-		return utilities.CheckForError(
-			c, err, 400, "answer", fmt.Sprintf("validation error, %v", utilities.ValidatorErrors(err)),
-		)
+		return utilities.CheckForValidationError(c, err, 400, "answer")
 	}
 
 	// Create database connection.

@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"time"
 
 	"Komentory/api/app/models"
@@ -128,9 +127,7 @@ func CreateNewProject(c *fiber.Ctx) error {
 
 	// Validate project fields.
 	if err := validate.Struct(project); err != nil {
-		return utilities.CheckForError(
-			c, err, 400, "project", fmt.Sprintf("validation error, %v", utilities.ValidatorErrors(err)),
-		)
+		return utilities.CheckForValidationError(c, err, 400, "project")
 	}
 
 	// Create database connection.
@@ -195,9 +192,7 @@ func UpdateProject(c *fiber.Ctx) error {
 
 		// Validate project fields.
 		if err := validate.Struct(project); err != nil {
-			return utilities.CheckForError(
-				c, err, 400, "project", fmt.Sprintf("validation error, %v", utilities.ValidatorErrors(err)),
-			)
+			return utilities.CheckForValidationError(c, err, 400, "project")
 		}
 
 		// Update project by given ID.
@@ -239,9 +234,7 @@ func DeleteProject(c *fiber.Ctx) error {
 
 	// Validate project fields.
 	if err := validate.StructPartial(project, "id"); err != nil {
-		return utilities.CheckForError(
-			c, err, 400, "project", fmt.Sprintf("validation error, %v", utilities.ValidatorErrors(err)),
-		)
+		return utilities.CheckForValidationError(c, err, 400, "project")
 	}
 
 	// Create database connection.

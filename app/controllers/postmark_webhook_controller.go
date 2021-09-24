@@ -3,7 +3,6 @@ package controllers
 import (
 	"Komentory/api/app/models"
 	"Komentory/api/platform/database"
-	"fmt"
 	"os"
 
 	"github.com/Komentory/utilities"
@@ -33,10 +32,7 @@ func UpdateUserSubscriptions(c *fiber.Ctx) error {
 
 	// Validate webhook fields.
 	if err := validate.Struct(subscriptionChange); err != nil {
-		return utilities.CheckForError(
-			c, err, 400, "postmark webhook",
-			fmt.Sprintf("validation error, %v", utilities.ValidatorErrors(err)),
-		)
+		return utilities.CheckForValidationError(c, err, 400, "postmark webhook")
 	}
 
 	// Create database connection.
@@ -63,9 +59,7 @@ func UpdateUserSubscriptions(c *fiber.Ctx) error {
 
 	// Validate user settings fields.
 	if err := validate.Struct(userSettings); err != nil {
-		return utilities.CheckForError(
-			c, err, 400, "user settings", fmt.Sprintf("validation error, %v", utilities.ValidatorErrors(err)),
-		)
+		return utilities.CheckForValidationError(c, err, 400, "user settings")
 	}
 
 	// Change user settings with validated data.

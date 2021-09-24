@@ -3,7 +3,6 @@ package controllers
 import (
 	"Komentory/api/app/models"
 	"Komentory/api/platform/database"
-	"fmt"
 	"time"
 
 	"github.com/Komentory/utilities"
@@ -147,9 +146,7 @@ func CreateNewTask(c *fiber.Ctx) error {
 
 		// Validate task fields.
 		if err := validate.Struct(task); err != nil {
-			return utilities.CheckForError(
-				c, err, 400, "task", fmt.Sprintf("validation error, %v", utilities.ValidatorErrors(err)),
-			)
+			return utilities.CheckForValidationError(c, err, 400, "task")
 		}
 
 		// Create a new task with given attrs.
@@ -213,9 +210,7 @@ func UpdateTask(c *fiber.Ctx) error {
 
 		// Validate task fields.
 		if err := validate.Struct(task); err != nil {
-			return utilities.CheckForError(
-				c, err, 400, "task", fmt.Sprintf("validation error, %v", utilities.ValidatorErrors(err)),
-			)
+			return utilities.CheckForValidationError(c, err, 400, "task")
 		}
 
 		// Update task by given ID.
@@ -257,9 +252,7 @@ func DeleteTask(c *fiber.Ctx) error {
 
 	// Validate task fields.
 	if err := validate.StructPartial(task, "id"); err != nil {
-		return utilities.CheckForError(
-			c, err, 400, "task", fmt.Sprintf("validation error, %v", utilities.ValidatorErrors(err)),
-		)
+		return utilities.CheckForValidationError(c, err, 400, "task")
 	}
 
 	// Create database connection.
