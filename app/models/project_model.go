@@ -18,9 +18,6 @@ type Project struct {
 	Alias         string       `db:"alias" json:"alias" validate:"required,lte=24"`
 	ProjectStatus int          `db:"project_status" json:"project_status" validate:"int"`
 	ProjectAttrs  ProjectAttrs `db:"project_attrs" json:"project_attrs" validate:"required,dive"`
-
-	// Fields for JOIN tables:
-	TasksCount int `db:"tasks_count" json:"tasks_count"` // number of tasks for this project
 }
 
 // ProjectAttrs struct to describe project attributes.
@@ -33,9 +30,46 @@ type ProjectAttrs struct {
 	Tags        []string `json:"tags"`
 }
 
+// ProjectTasks struct to describe getting list of tasks for a project.
+type ProjectTasks []*GetProjectTasks
+
+// GetProject struct to describe getting one project.
+type GetProject struct {
+	ID            uuid.UUID    `db:"id" json:"id"`
+	CreatedAt     time.Time    `db:"created_at" json:"created_at"`
+	UpdatedAt     time.Time    `db:"updated_at" json:"updated_at"`
+	UserID        uuid.UUID    `db:"user_id" json:"user_id"`
+	Alias         string       `db:"alias" json:"alias"`
+	ProjectStatus int          `db:"project_status" json:"project_status"`
+	ProjectAttrs  ProjectAttrs `db:"project_attrs" json:"project_attrs"`
+
+	// Fields for JOIN tables:
+	TasksCount int          `db:"tasks_count" json:"tasks_count"`
+	Tasks      ProjectTasks `db:"tasks" json:"tasks"`
+}
+
+// GetProjects struct to describe getting list of projects.
+type GetProjects struct {
+	ID           uuid.UUID    `db:"id" json:"id"`
+	CreatedAt    time.Time    `db:"created_at" json:"created_at"`
+	UpdatedAt    time.Time    `db:"updated_at" json:"updated_at"`
+	Alias        string       `db:"alias" json:"alias"`
+	ProjectAttrs ProjectAttrs `db:"project_attrs" json:"project_attrs"`
+
+	// Fields for JOIN tables:
+	TasksCount int `db:"tasks_count" json:"tasks_count"`
+}
+
+// GetProjectTasks struct to describe getting tasks list for given project.
+type GetProjectTasks struct {
+	ID        uuid.UUID `db:"id" json:"id"`
+	Alias     string    `db:"alias" json:"alias"`
+	TaskAttrs TaskAttrs `db:"task_attrs" json:"task_attrs"`
+}
+
 // Value make the ProjectAttrs struct implement the driver.Valuer interface.
 // This method simply returns the JSON-encoded representation of the struct.
-func (p *ProjectAttrs) Value() (driver.Value, error) {
+func (p ProjectAttrs) Value() (driver.Value, error) {
 	return json.Marshal(p)
 }
 
@@ -47,4 +81,12 @@ func (p *ProjectAttrs) Scan(value interface{}) error {
 		return errors.New("type assertion to []byte failed")
 	}
 	return json.Unmarshal(j, &p)
+}
+
+func (t *ProjectTasks) Scan(value interface{}) error {
+	j, ok := value.([]byte)
+	if !ok {
+		return errors.New("type assertion to []byte failed")
+	}
+	return json.Unmarshal(j, &t)
 }

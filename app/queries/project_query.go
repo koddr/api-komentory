@@ -15,14 +15,18 @@ type ProjectQueries struct {
 }
 
 // GetProjects method for getting all project.
-func (q *ProjectQueries) GetProjects() ([]models.Project, int, error) {
+func (q *ProjectQueries) GetProjects() ([]models.GetProjects, int, error) {
 	// Define project variable.
-	projects := []models.Project{}
+	projects := []models.GetProjects{}
 
 	// Define query string.
 	query := `
 	SELECT
-		p.*,
+		p.id,
+		p.created_at,
+		p.updated_at,
+		p.alias,
+		p.project_attrs,
 		COUNT(t.id) AS tasks_count
 	FROM
 		projects AS p
@@ -51,14 +55,18 @@ func (q *ProjectQueries) GetProjects() ([]models.Project, int, error) {
 }
 
 // GetProjectsByUsername method for getting all project by given username.
-func (q *ProjectQueries) GetProjectsByUsername(username string) ([]models.Project, int, error) {
+func (q *ProjectQueries) GetProjectsByUsername(username string) ([]models.GetProjects, int, error) {
 	// Define project variable.
-	projects := []models.Project{}
+	projects := []models.GetProjects{}
 
 	// Define query string.
 	query := `
 	SELECT
-		p.*,
+		p.id,
+		p.created_at,
+		p.updated_at,
+		p.alias,
+		p.project_attrs,
 		COUNT(t.id) AS tasks_count
 	FROM
 		projects AS p
@@ -90,9 +98,9 @@ func (q *ProjectQueries) GetProjectsByUsername(username string) ([]models.Projec
 }
 
 // GetProjectByID method for getting one project by given ID.
-func (q *ProjectQueries) GetProjectByID(id uuid.UUID) (models.Project, int, error) {
+func (q *ProjectQueries) GetProjectByID(id uuid.UUID) (models.GetProject, int, error) {
 	// Define project variable.
-	project := models.Project{}
+	project := models.GetProject{}
 
 	// Define query string.
 	query := `
@@ -122,21 +130,22 @@ func (q *ProjectQueries) GetProjectByID(id uuid.UUID) (models.Project, int, erro
 }
 
 // GetProjectByAlias method for getting one project by given alias.
-func (q *ProjectQueries) GetProjectByAlias(alias string) (models.Project, int, error) {
+func (q *ProjectQueries) GetProjectByAlias(alias string) (models.GetProject, int, error) {
 	// Define project variable.
-	project := models.Project{}
+	project := models.GetProject{}
 
 	// Define query string.
 	query := `
 	SELECT
 		p.*,
+		jsonb_agg(t.*) AS tasks,
 		COUNT(t.id) AS tasks_count
 	FROM
 		projects AS p
-		LEFT JOIN tasks AS t ON t.project_id = p.id
+		JOIN tasks AS t ON p.id = t.project_id
 	WHERE
 		p.alias = $1::varchar
-	GROUP BY
+	GROUP BY 
 		p.id
 	LIMIT 1
 	`

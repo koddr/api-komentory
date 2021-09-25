@@ -10,33 +10,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// GetTaskByID func for get one task by ID.
-func GetTaskByID(c *fiber.Ctx) error {
-	// Catch task ID from URL.
-	taskID, err := uuid.Parse(c.Params("task_id"))
-	if err != nil {
-		return utilities.CheckForError(c, err, 400, "task", err.Error())
-	}
-
-	// Create database connection.
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, 500, "database", err.Error())
-	}
-
-	// Get one task.
-	task, status, err := db.GetTaskByID(taskID)
-	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, status, "task", err.Error())
-	}
-
-	// Return status 200 OK.
-	return c.JSON(fiber.Map{
-		"status": fiber.StatusOK,
-		"task":   task,
-	})
-}
-
 // GetTaskByAlias func for get one task by alias.
 func GetTaskByAlias(c *fiber.Ctx) error {
 	// Catch task alias from URL.

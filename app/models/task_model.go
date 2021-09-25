@@ -19,21 +19,6 @@ type Task struct {
 	Alias      string    `db:"alias" json:"alias" validate:"required,lte=16"`
 	TaskStatus int       `db:"task_status" json:"task_status" validate:"int"`
 	TaskAttrs  TaskAttrs `db:"task_attrs" json:"task_attrs" validate:"required,dive"`
-
-	// Fields for JOIN tables:
-	AnswersCount int `db:"answers_count" json:"answers_count"` // number of answers for this task
-}
-
-// TasksList struct to describe tasks list object.
-type TasksList struct {
-	ID        uuid.UUID `db:"id" json:"id" validate:"required,uuid"`
-	CreatedAt time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
-	Alias     string    `db:"alias" json:"alias" validate:"required,lte=16"`
-	TaskAttrs TaskAttrs `db:"task_attrs" json:"task_attrs" validate:"required,dive"`
-
-	// Fields for JOIN tables:
-	AnswersCount int `db:"answers_count" json:"answers_count"` // number of answers for this task
 }
 
 // TaskAttrs struct to describe task attributes.
@@ -52,9 +37,36 @@ type TaskStep struct {
 	Description string `json:"description" validate:"required"`
 }
 
+// GetTasks struct to describe getting tasks list.
+type GetTask struct {
+	ID         uuid.UUID `db:"id" json:"id"`
+	CreatedAt  time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt  time.Time `db:"updated_at" json:"updated_at"`
+	UserID     uuid.UUID `db:"user_id" json:"user_id"`
+	ProjectID  uuid.UUID `db:"project_id" json:"project_id"`
+	Alias      string    `db:"alias" json:"alias"`
+	TaskStatus int       `db:"task_status" json:"task_status"`
+	TaskAttrs  TaskAttrs `db:"task_attrs" json:"task_attrs"`
+
+	// Fields for JOIN tables:
+	AnswersCount int `db:"answers_count" json:"answers_count"`
+}
+
+// GetTasks struct to describe getting tasks list.
+type GetTasks struct {
+	ID        uuid.UUID `db:"id" json:"id"`
+	CreatedAt time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+	Alias     string    `db:"alias" json:"alias"`
+	TaskAttrs TaskAttrs `db:"task_attrs" json:"task_attrs"`
+
+	// Fields for JOIN tables:
+	AnswersCount int `db:"answers_count" json:"answers_count"`
+}
+
 // Value make the TaskAttrs struct implement the driver.Valuer interface.
 // This method simply returns the JSON-encoded representation of the struct.
-func (t *TaskAttrs) Value() (driver.Value, error) {
+func (t TaskAttrs) Value() (driver.Value, error) {
 	return json.Marshal(t)
 }
 
