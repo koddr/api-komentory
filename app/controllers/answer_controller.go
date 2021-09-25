@@ -10,33 +10,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// GetAnswerByID func for get one answer by ID.
-func GetAnswerByID(c *fiber.Ctx) error {
-	// Catch answer ID from URL.
-	answerID, err := uuid.Parse(c.Params("answer_id"))
-	if err != nil {
-		return utilities.CheckForError(c, err, 400, "answer id", err.Error())
-	}
-
-	// Create database connection.
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, 500, "database", err.Error())
-	}
-
-	// Get one answer.
-	answer, status, err := db.GetAnswerByID(answerID)
-	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, status, "answer", err.Error())
-	}
-
-	// Return status 200 OK.
-	return c.JSON(fiber.Map{
-		"status": fiber.StatusOK,
-		"answer": answer,
-	})
-}
-
 // GetAnswerByAlias func for get one answer by alias.
 func GetAnswerByAlias(c *fiber.Ctx) error {
 	// Catch answer ID from URL.

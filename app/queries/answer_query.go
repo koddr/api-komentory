@@ -15,6 +15,7 @@ type AnswerQueries struct {
 }
 
 // GetAnswerByID method for getting one answer by given ID.
+// NOTE: This method is using ONLY for cheking if given object is exists.
 func (q *AnswerQueries) GetAnswerByID(id uuid.UUID) (models.Answer, int, error) {
 	// Define project variable.
 	task := models.Answer{}
@@ -47,17 +48,21 @@ func (q *AnswerQueries) GetAnswerByID(id uuid.UUID) (models.Answer, int, error) 
 }
 
 // GetAnswerByAlias method for getting one answer by given alias.
-func (q *AnswerQueries) GetAnswerByAlias(alias string) (models.Answer, int, error) {
+func (q *AnswerQueries) GetAnswerByAlias(alias string) (models.GetAnswer, int, error) {
 	// Define project variable.
-	task := models.Answer{}
+	task := models.GetAnswer{}
 
 	// Define query string.
 	query := `
-	SELECT *
+	SELECT
+		a.*,
+		u.username AS username,
+		u.user_attrs AS user_attrs
 	FROM
-		answers
+		answers AS a
+		LEFT JOIN users AS u ON a.user_id = u.id
 	WHERE 
-		alias = $1::varchar
+		a.alias = $1::varchar
 	LIMIT 1
 	`
 
@@ -79,20 +84,28 @@ func (q *AnswerQueries) GetAnswerByAlias(alias string) (models.Answer, int, erro
 }
 
 // GetAnswersByProjectID method for getting all answers for given project.
-func (q *AnswerQueries) GetAnswersByProjectID(project_id uuid.UUID) ([]models.Answer, int, error) {
+func (q *AnswerQueries) GetAnswersByProjectID(project_id uuid.UUID) ([]models.GetAnswers, int, error) {
 	// Define project variable.
-	answers := []models.Answer{}
+	answers := []models.GetAnswers{}
 
 	// Define query string.
 	query := `
-	SELECT *
+	SELECT
+		a.id,
+		a.created_at,
+		a.updated_at,
+		a.alias,
+		a.answer_attrs,
+		u.username AS username,
+		u.user_attrs AS user_attrs
 	FROM
-		answers
+		answers AS a
+		LEFT JOIN users AS u ON a.user_id = u.id
 	WHERE
-		project_id = $1::uuid
-		AND answer_status = 1
+		a.project_id = $1::uuid
+		AND a.answer_status = 1
 	ORDER BY
-		created_at DESC
+		a.created_at DESC
 	`
 
 	// Send query to database.
@@ -113,25 +126,28 @@ func (q *AnswerQueries) GetAnswersByProjectID(project_id uuid.UUID) ([]models.An
 }
 
 // GetAnswersByTaskID method for getting all answers for given task.
-func (q *AnswerQueries) GetAnswersByTaskID(task_id uuid.UUID) ([]models.AnswersList, int, error) {
-	// Define project variable.
-	answers := []models.AnswersList{}
+func (q *AnswerQueries) GetAnswersByTaskID(task_id uuid.UUID) ([]models.GetAnswers, int, error) {
+	// Define answer variable.
+	answers := []models.GetAnswers{}
 
 	// Define query string.
 	query := `
 	SELECT
-		id,
-		created_at,
-		updated_at,
-		alias,
-		answer_attrs
+		a.id,
+		a.created_at,
+		a.updated_at,
+		a.alias,
+		a.answer_attrs,
+		u.username AS username,
+		u.user_attrs AS user_attrs
 	FROM
-		answers
+		answers AS a
+		LEFT JOIN users AS u ON a.user_id = u.id
 	WHERE
-		task_id = $1::uuid
-		AND answer_status = 1
+		a.task_id = $1::uuid
+		AND a.answer_status = 1
 	ORDER BY
-		created_at DESC
+		a.created_at DESC
 	`
 
 	// Send query to database.
