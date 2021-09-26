@@ -56,11 +56,11 @@ func (q *AnswerQueries) GetAnswerByAlias(alias string) (models.GetAnswer, int, e
 	query := `
 	SELECT
 		a.*,
-		u.username AS username,
-		u.user_attrs AS user_attrs
+		u.username,
+		u.user_attrs
 	FROM
 		answers AS a
-		LEFT JOIN users AS u ON a.user_id = u.id
+		LEFT JOIN users AS u ON u.id = a.user_id
 	WHERE 
 		a.alias = $1::varchar
 	LIMIT 1
@@ -96,11 +96,11 @@ func (q *AnswerQueries) GetAnswersByProjectID(project_id uuid.UUID) ([]models.Ge
 		a.updated_at,
 		a.alias,
 		a.answer_attrs,
-		u.username AS username,
-		u.user_attrs AS user_attrs
+		u.username,
+		u.user_attrs
 	FROM
 		answers AS a
-		LEFT JOIN users AS u ON a.user_id = u.id
+		LEFT JOIN users AS u ON u.id = a.user_id
 	WHERE
 		a.project_id = $1::uuid
 		AND a.answer_status = 1
@@ -138,8 +138,8 @@ func (q *AnswerQueries) GetAnswersByTaskID(task_id uuid.UUID) ([]models.GetAnswe
 		a.updated_at,
 		a.alias,
 		a.answer_attrs,
-		u.username AS username,
-		u.user_attrs AS user_attrs
+		u.username,
+		u.user_attrs
 	FROM
 		answers AS a
 		LEFT JOIN users AS u ON a.user_id = u.id

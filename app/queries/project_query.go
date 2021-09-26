@@ -142,7 +142,7 @@ func (q *ProjectQueries) GetProjectByAlias(alias string) (models.GetProject, int
 		COUNT(t.id) AS tasks_count
 	FROM
 		projects AS p
-		LEFT JOIN tasks AS t ON p.id = t.project_id
+		LEFT JOIN tasks AS t ON t.project_id = p.id
 	WHERE
 		p.alias = $1::varchar
 	GROUP BY 
