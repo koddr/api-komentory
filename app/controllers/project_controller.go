@@ -72,7 +72,7 @@ func GetProjectByAlias(c *fiber.Ctx) error {
 	// Get project by ID.
 	project, status, err := db.GetProjectByAlias(alias)
 	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, status, "project", err.Error())
+		return utilities.CheckForError(c, err, status, "project", err.Error())
 	}
 
 	// Return status 200 OK.

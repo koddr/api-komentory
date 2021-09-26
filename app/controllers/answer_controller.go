@@ -24,7 +24,7 @@ func GetAnswerByAlias(c *fiber.Ctx) error {
 	// Get one answer.
 	answer, status, err := db.GetAnswerByAlias(alias)
 	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, status, "answer", err.Error())
+		return utilities.CheckForError(c, err, status, "answer", err.Error())
 	}
 
 	// Return status 200 OK.
@@ -51,7 +51,7 @@ func GetAnswersByProjectID(c *fiber.Ctx) error {
 	// Get all answers.
 	answers, status, err := db.GetAnswersByProjectID(projectID)
 	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, status, "answers", err.Error())
+		return utilities.CheckForError(c, err, status, "answers", err.Error())
 	}
 
 	// Return status 200 OK.
@@ -79,7 +79,7 @@ func GetAnswersByTaskID(c *fiber.Ctx) error {
 	// Get all answers.
 	answers, status, err := db.GetAnswersByTaskID(taskID)
 	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, status, "answers", err.Error())
+		return utilities.CheckForError(c, err, status, "answers", err.Error())
 	}
 
 	// Return status 200 OK.
@@ -120,13 +120,13 @@ func CreateNewAnswer(c *fiber.Ctx) error {
 	// Checking, if project with given ID is exists.
 	foundedProject, status, err := db.GetProjectByID(answer.ProjectID)
 	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, status, "project", err.Error())
+		return utilities.CheckForError(c, err, status, "project", err.Error())
 	}
 
 	// Checking, if answer with given ID is exists.
 	foundedTask, status, err := db.GetTaskByID(answer.TaskID)
 	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, status, "task", err.Error())
+		return utilities.CheckForError(c, err, status, "task", err.Error())
 	}
 
 	// Set user ID from JWT data of current user.
@@ -194,7 +194,7 @@ func UpdateAnswer(c *fiber.Ctx) error {
 	// Checking, if answer with given ID is exists.
 	foundedAnswer, status, err := db.GetAnswerByID(answer.ID)
 	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, status, "answer", err.Error())
+		return utilities.CheckForError(c, err, status, "answer", err.Error())
 	}
 
 	// Set user ID from JWT data of current user.
@@ -268,7 +268,7 @@ func DeleteAnswer(c *fiber.Ctx) error {
 	// Checking, if answer with given ID is exists.
 	foundedAnswer, status, err := db.GetAnswerByID(answer.ID)
 	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, status, "answer", err.Error())
+		return utilities.CheckForError(c, err, status, "answer", err.Error())
 	}
 
 	// Set user ID from JWT data of current user.

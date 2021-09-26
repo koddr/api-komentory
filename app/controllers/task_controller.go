@@ -24,7 +24,7 @@ func GetTaskByAlias(c *fiber.Ctx) error {
 	// Get one task.
 	task, status, err := db.GetTaskByAlias(alias)
 	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, status, "task", err.Error())
+		return utilities.CheckForError(c, err, status, "task", err.Error())
 	}
 
 	// Return status 200 OK.
@@ -51,7 +51,7 @@ func GetTasksByProjectID(c *fiber.Ctx) error {
 	// Get all tasks.
 	tasks, status, err := db.GetTasksByProjectID(projectID)
 	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, status, "tasks", err.Error())
+		return utilities.CheckForError(c, err, status, "tasks", err.Error())
 	}
 
 	// Return status 200 OK.
@@ -92,7 +92,7 @@ func CreateNewTask(c *fiber.Ctx) error {
 	// Checking, if project with given ID is exists.
 	foundedProject, status, err := db.GetProjectByID(task.ProjectID)
 	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, status, "project", err.Error())
+		return utilities.CheckForError(c, err, status, "project", err.Error())
 	}
 
 	// Set user ID from JWT data of current user.
@@ -165,7 +165,7 @@ func UpdateTask(c *fiber.Ctx) error {
 	// Checking, if project with given ID is exists.
 	foundedTask, status, err := db.GetTaskByID(task.ID)
 	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, status, "task", err.Error())
+		return utilities.CheckForError(c, err, status, "task", err.Error())
 	}
 
 	// Set user ID from JWT data of current user.
@@ -237,7 +237,7 @@ func DeleteTask(c *fiber.Ctx) error {
 	// Checking, if task with given ID is exists.
 	foundedTask, status, err := db.GetTaskByID(task.ID)
 	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, status, "task", err.Error())
+		return utilities.CheckForError(c, err, status, "task", err.Error())
 	}
 
 	// Set user ID from JWT data of current user.

@@ -79,14 +79,14 @@ func RemoveFileFromCDN(c *fiber.Ctx) error {
 		return utilities.CheckForError(c, err, 400, "file object", err.Error())
 	}
 
-	// Get user ID from the user's upload folder on CDN.
-	fileUserID, err := helpers.GetUserIDFromCDNFileKey(fileToDelete.Key)
+	// Get owner's user ID for file from the upload folder on CDN.
+	fileOwnerUserID, err := helpers.GetUserIDFromCDNFileKey(fileToDelete.Key)
 	if err != nil {
 		return utilities.CheckForErrorWithStatusCode(c, err, 400, "user id", err.Error())
 	}
 
-	// Check, if user ID from JWT is equal to user's upload folder on CDN.
-	if userID != fileUserID {
+	// Check, if user ID from JWT is equal to getted owner user ID from upload folder on CDN.
+	if userID != fileOwnerUserID {
 		return utilities.ThrowJSONErrorWithStatusCode(c, 403, "file object", "you have no permissions")
 	}
 
