@@ -138,11 +138,11 @@ func (q *ProjectQueries) GetProjectByAlias(alias string) (models.GetProject, int
 	query := `
 	SELECT
 		p.*,
-		jsonb_agg(t.*) AS tasks,
+		COALESCE(jsonb_agg(t.*) FILTER (WHERE t.project_id IS NOT NULL), '[]') AS tasks,
 		COUNT(t.id) AS tasks_count
 	FROM
 		projects AS p
-		JOIN tasks AS t ON p.id = t.project_id
+		LEFT JOIN tasks AS t ON p.id = t.project_id
 	WHERE
 		p.alias = $1::varchar
 	GROUP BY 
