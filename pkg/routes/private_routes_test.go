@@ -1,7 +1,9 @@
 package routes
 
 import (
+	"encoding/json"
 	"io"
+	"io/ioutil"
 	"net/http/httptest"
 	"testing"
 
@@ -62,7 +64,19 @@ func TestPrivateRoutes(t *testing.T) {
 			continue
 		}
 
-		// Verify, if the status code is as expected.
-		assert.Equalf(t, test.expectedCode, resp.StatusCode, test.description)
+		// Parse the response body.
+		body, errReadAll := ioutil.ReadAll(resp.Body)
+		if errReadAll != nil {
+			return
+		}
+
+		// Set the response body (JSON) to simple map.
+		var result map[string]interface{}
+		if errUnmarshal := json.Unmarshal(body, &result); errUnmarshal != nil {
+			return
+		}
+
+		// Checking, if the JSON field "status" from the response body has the expected status code.
+		assert.Equalf(t, test.expectedCode, int(result["status"].(float64)), test.description)
 	}
 }

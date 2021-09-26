@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"net/http/httptest"
 	"testing"
 
@@ -54,13 +56,24 @@ func TestPublicRoutes(t *testing.T) {
 		// Verify, that no error occurred, that is not expected
 		assert.Equalf(t, test.expectedError, err != nil, test.description)
 
-		// As expected errors lead to broken responses,
-		// the next test case needs to be processed.
+		// As expected errors lead to broken responses the next test case needs to be processed.
 		if test.expectedError {
 			continue
 		}
 
-		// Verify, if the status code is as expected.
-		assert.Equalf(t, test.expectedCode, resp.StatusCode, test.description)
+		// Parse the response body.
+		body, errReadAll := ioutil.ReadAll(resp.Body)
+		if errReadAll != nil {
+			return
+		}
+
+		// Set the response body (JSON) to simple map.
+		var result map[string]interface{}
+		if errUnmarshal := json.Unmarshal(body, &result); errUnmarshal != nil {
+			return
+		}
+
+		// Checking, if the JSON field "status" from the response body has the expected status code.
+		assert.Equalf(t, test.expectedCode, int(result["status"].(float64)), test.description)
 	}
 }
