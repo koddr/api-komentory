@@ -1,10 +1,8 @@
 package routes
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http/httptest"
 	"testing"
@@ -14,61 +12,52 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPrivateRoutes(t *testing.T) {
-	// Load .env.test file from the root folder.
+func TestNotFoundRoute(t *testing.T) {
+	// Load .env.test file from the root folder
 	if err := godotenv.Load("../../.env.test"); err != nil {
 		panic(err)
-	}
-
-	// Define test variables.
-	body := map[string]string{
-		"empty":     `{}`,
-		"non-empty": `{"title": "Test title"}`,
 	}
 
 	// Define a structure for specifying input and output data of a single test case.
 	tests := []struct {
 		description  string
-		method       string // input method
+		httpMethod   string
 		route        string // input route
-		tokenString  string // input token
-		body         io.Reader
 		expectedCode int
 	}{
 		// Failed test cases:
 		{
-			"fail: create project without JWT and JSON body",
-			"POST", "/v1/project", "", bytes.NewBuffer([]byte(body["empty"])),
-			400, // Missing or malformed JWT
+			"fail: send POST request to not found route",
+			"POST", "/v1/not-found",
+			404, // endpoint is not found
 		},
 		{
-			"fail: update project without JWT and JSON body",
-			"PATCH", "/v1/project", "", bytes.NewBuffer([]byte(body["empty"])),
-			400, // Missing or malformed JWT
+			"fail: send PATCH request to not found route",
+			"PATCH", "/v1/not-found",
+			404, // endpoint is not found
 		},
 		{
-			"fail: delete project without JWT and JSON body",
-			"DELETE", "/v1/project", "", bytes.NewBuffer([]byte(body["empty"])),
-			400, // Missing or malformed JWT
+			"fail: send PUT request to not found route",
+			"PUT", "/v1/not-found",
+			404, // endpoint is not found
 		},
 		{
-			"fail: put file to CDN without JWT and JSON body",
-			"PUT", "/v1/cdn/upload", "", bytes.NewBuffer([]byte(body["empty"])),
-			400, // Missing or malformed JWT
+			"fail: send DELETE request to not found route",
+			"DELETE", "/v1/not-found",
+			404, // endpoint is not found
 		},
 	}
 
-	// Define a new Fiber app.
+	// Define Fiber app.
 	app := fiber.New()
 
 	// Define routes.
-	PrivateRoutes(app)
+	NotFoundRoute(app)
 
 	// Iterate through test single test cases
 	for index, test := range tests {
 		// Create a new http request with the route from the test case.
-		req := httptest.NewRequest(test.method, test.route, test.body)
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", test.tokenString))
+		req := httptest.NewRequest(test.httpMethod, test.route, nil)
 		req.Header.Set("Content-Type", "application/json")
 
 		// Perform the request plain with the app.
