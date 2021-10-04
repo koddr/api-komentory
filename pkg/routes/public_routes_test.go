@@ -2,6 +2,7 @@ package routes
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http/httptest"
 	"testing"
@@ -19,22 +20,27 @@ func TestPublicRoutes(t *testing.T) {
 
 	// Define a structure for specifying input and output data of a single test case.
 	tests := []struct {
-		description   string
-		route         string // input route
-		expectedError bool
-		expectedCode  int
+		description  string
+		httpMethod   string
+		route        string // input route
+		expectedCode int
 	}{
+		// Successful test cases:
 		{
-			description:   "get all projects",
-			route:         "/v1/projects",
-			expectedError: false,
-			expectedCode:  200,
+			"success: get all projects",
+			"GET", "/v1/projects",
+			200,
+		},
+		// Failed test cases:
+		{
+			"fail: get project by not found alias",
+			"GET", "/v1/project/123456",
+			404,
 		},
 		{
-			description:   "get project by not found alias",
-			route:         "/v1/project/123456",
-			expectedError: false,
-			expectedCode:  404,
+			"fail: get all projects by not found username",
+			"GET", "/v1/user/not-found/projects",
+			200,
 		},
 	}
 
@@ -44,22 +50,14 @@ func TestPublicRoutes(t *testing.T) {
 	// Define routes.
 	PublicRoutes(app)
 
-	// Iterate through test single test cases
-	for _, test := range tests {
+	// Iterate through test single test cases.
+	for index, test := range tests {
 		// Create a new http request with the route from the test case.
-		req := httptest.NewRequest("GET", test.route, nil)
+		req := httptest.NewRequest(test.httpMethod, test.route, nil)
 		req.Header.Set("Content-Type", "application/json")
 
 		// Perform the request plain with the app.
-		resp, err := app.Test(req, -1) // the -1 disables request latency
-
-		// Verify, that no error occurred, that is not expected
-		assert.Equalf(t, test.expectedError, err != nil, test.description)
-
-		// As expected errors lead to broken responses the next test case needs to be processed.
-		if test.expectedError {
-			continue
-		}
+		resp, _ := app.Test(req, -1) // the -1 disables request latency
 
 		// Parse the response body.
 		body, errReadAll := ioutil.ReadAll(resp.Body)
@@ -73,7 +71,23 @@ func TestPublicRoutes(t *testing.T) {
 			return
 		}
 
+		// Redefine index of the test case.
+		readableIndex := index + 1
+
+		// Define status & description from the response.
+		var resultMsg string
+		if result["msg"] == nil {
+			resultMsg = "no error message"
+		} else {
+			resultMsg = result["msg"].(string)
+		}
+		status := int(result["status"].(float64))
+		description := fmt.Sprintf(
+			"[%d] need to %s\nreal error output: %s",
+			readableIndex, test.description, resultMsg,
+		)
+
 		// Checking, if the JSON field "status" from the response body has the expected status code.
-		assert.Equalf(t, test.expectedCode, int(result["status"].(float64)), test.description)
+		assert.Equalf(t, test.expectedCode, status, description)
 	}
 }
