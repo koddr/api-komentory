@@ -31,16 +31,16 @@ func TestPublicRoutes(t *testing.T) {
 			"GET", "/v1/projects",
 			200,
 		},
+		{
+			"fail: get all projects by not found username",
+			"GET", "/v1/user/not-found/projects",
+			200,
+		},
 		// Failed test cases:
 		{
 			"fail: get project by not found alias",
 			"GET", "/v1/project/123456",
 			404,
-		},
-		{
-			"fail: get all projects by not found username",
-			"GET", "/v1/user/not-found/projects",
-			200,
 		},
 	}
 
