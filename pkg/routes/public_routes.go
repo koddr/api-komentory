@@ -16,13 +16,14 @@ func PublicRoutes(a *fiber.App) {
 	r.Get("/projects", middleware.Cached(), controllers.GetProjects)                          // get all projects
 	r.Get("/user/:username/projects", middleware.Cached(), controllers.GetProjectsByUsername) // get projects by username
 
+	// Routes for GET method (single, cached):
+	r.Get("/project/:alias", middleware.Cached(), controllers.GetProjectByAlias) // get one project by alias
+
 	// Routes for GET method (many, non-cached):
-	r.Get("/project/:project_id/tasks", controllers.GetTasksByProjectID)     // get tasks by project ID
 	r.Get("/project/:project_id/answers", controllers.GetAnswersByProjectID) // get answers by project ID
 	r.Get("/task/:task_id/answers", controllers.GetAnswersByTaskID)          // get answers by task ID
 
 	// Routes for GET method (single, non-cached):
-	r.Get("/project/:alias", controllers.GetProjectByAlias) // get one project by alias
-	r.Get("/task/:alias", controllers.GetTaskByAlias)       // get one task by alias
-	r.Get("/answer/:alias", controllers.GetAnswerByAlias)   // get one answer by ID
+	r.Get("/task/:alias", controllers.GetTaskByAlias)     // get one task by alias
+	r.Get("/answer/:alias", controllers.GetAnswerByAlias) // get one answer by ID
 }
