@@ -39,8 +39,8 @@ type ProjectAttrs struct {
 
 // CreateNewProject struct to describe create a new project process.
 type CreateNewProject struct {
-	ProjectStatus int          `db:"project_status" json:"project_status" validate:"int"`
-	ProjectAttrs  ProjectAttrs `db:"project_attrs" json:"project_attrs" validate:"required,dive"`
+	ProjectStatus int          `json:"project_status" validate:"int"`
+	ProjectAttrs  ProjectAttrs `json:"project_attrs" validate:"required,dive"`
 }
 
 // ---
@@ -49,9 +49,9 @@ type CreateNewProject struct {
 
 // UpdateProject struct to describe update process of the given project.
 type UpdateProject struct {
-	ID            uuid.UUID    `db:"id" json:"id" validate:"required,uuid"`
-	ProjectStatus int          `db:"project_status" json:"project_status" validate:"int"`
-	ProjectAttrs  ProjectAttrs `db:"project_attrs" json:"project_attrs" validate:"required,dive"`
+	ID            uuid.UUID    `json:"id" validate:"required,uuid"`
+	ProjectStatus int          `json:"project_status" validate:"int"`
+	ProjectAttrs  ProjectAttrs `json:"project_attrs" validate:"required,dive"`
 }
 
 // ---

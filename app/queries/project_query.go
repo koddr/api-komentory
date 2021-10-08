@@ -16,7 +16,7 @@ type ProjectQueries struct {
 	*sqlx.DB
 }
 
-// FindProjectByID method for found one project by given ID.
+// FindProjectByID method for find one project by given ID.
 func (q *ProjectQueries) FindProjectByID(project_id uuid.UUID) (models.Project, int, error) {
 	// Define project variable.
 	project := models.Project{}
@@ -24,7 +24,8 @@ func (q *ProjectQueries) FindProjectByID(project_id uuid.UUID) (models.Project, 
 	// Define query string.
 	query := `
 	SELECT 
-		id
+		id,
+		user_id
 	FROM
 		projects
 	WHERE
@@ -76,7 +77,7 @@ func (q *ProjectQueries) CreateNewProject(p *models.Project) error {
 }
 
 // UpdateProject method for updating project by given Project object.
-func (q *ProjectQueries) UpdateProject(id uuid.UUID, p *models.Project) error {
+func (q *ProjectQueries) UpdateProject(id uuid.UUID, p *models.UpdateProject) error {
 	// Define query string.
 	query := `
 	UPDATE

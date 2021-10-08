@@ -2,7 +2,9 @@ package queries
 
 import (
 	"Komentory/api/app/models"
+	"Komentory/api/platform/embed_files"
 	"database/sql"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -14,28 +16,25 @@ type TaskQueries struct {
 	*sqlx.DB
 }
 
-// GetTaskByID method for getting one project by given ID.
-func (q *TaskQueries) GetTaskByID(id uuid.UUID) (models.GetTask, int, error) {
-	// Define project variable.
-	task := models.GetTask{}
+// FindTaskByID method for find one task by given ID.
+func (q *TaskQueries) FindTaskByID(task_id uuid.UUID) (models.Task, int, error) {
+	// Define task variable.
+	task := models.Task{}
 
 	// Define query string.
 	query := `
 	SELECT
-		t.*,
-		COUNT(a.id) AS answers_count
+		id,
+		user_id
 	FROM
-		tasks AS t
-		LEFT JOIN answers AS a ON a.task_id = t.id
+		tasks
 	WHERE
-		t.id = $1::uuid
-	GROUP BY
-		t.id
+		id = $1::uuid
 	LIMIT 1
 	`
 
 	// Send query to database.
-	err := q.Get(&task, query, id)
+	err := q.Get(&task, query, task_id)
 
 	// Get quey result.
 	switch err {
@@ -48,86 +47,6 @@ func (q *TaskQueries) GetTaskByID(id uuid.UUID) (models.GetTask, int, error) {
 	default:
 		// Return empty object and 400 error.
 		return task, fiber.StatusBadRequest, err
-	}
-}
-
-// GetTaskByAlias method for getting one task by given alias.
-func (q *TaskQueries) GetTaskByAlias(alias string) (models.GetTask, int, error) {
-	// Define project variable.
-	task := models.GetTask{}
-
-	// Define query string.
-	query := `
-	SELECT
-		t.*,
-		COUNT(a.id) AS answers_count
-	FROM
-		tasks AS t
-		LEFT JOIN answers AS a ON a.task_id = t.id
-	WHERE
-		t.alias = $1::varchar
-	GROUP BY
-		t.id
-	LIMIT 1
-	`
-
-	// Send query to database.
-	err := q.Get(&task, query, alias)
-
-	// Get quey result.
-	switch err {
-	case nil:
-		// Return object and 200 OK.
-		return task, fiber.StatusOK, nil
-	case sql.ErrNoRows:
-		// Return empty object and 404 error.
-		return task, fiber.StatusNotFound, err
-	default:
-		// Return empty object and 400 error.
-		return task, fiber.StatusBadRequest, err
-	}
-}
-
-// GetTasksByProjectID method for getting all tasks for given project.
-func (q *TaskQueries) GetTasksByProjectID(project_id uuid.UUID) ([]models.GetTasks, int, error) {
-	// Define project variable.
-	tasks := []models.GetTasks{}
-
-	// Define query string.
-	query := `
-	SELECT
-		t.id,
-		t.created_at,
-		t.updated_at,
-		t.alias,
-		t.task_attrs,
-		COUNT(a.id) AS answers_count
-	FROM
-		tasks AS t
-		LEFT JOIN answers AS a ON a.task_id = t.id
-	WHERE
-		t.project_id = $1::uuid
-		AND t.task_status = 1
-	GROUP BY
-		t.id
-	ORDER BY
-		t.created_at DESC
-	`
-
-	// Send query to database.
-	err := q.Select(&tasks, query, project_id)
-
-	// Get query result.
-	switch err {
-	case nil:
-		// Return object and 200 OK.
-		return tasks, fiber.StatusOK, nil
-	case sql.ErrNoRows:
-		// Return empty object and 404 error.
-		return tasks, fiber.StatusNotFound, err
-	default:
-		// Return empty object and 400 error.
-		return tasks, fiber.StatusBadRequest, err
 	}
 }
 
@@ -138,8 +57,8 @@ func (q *TaskQueries) CreateNewTask(t *models.Task) error {
 	INSERT INTO tasks
 	VALUES (
 		$1::uuid, $2::timestamp, $3::timestamp, 
-		$4::uuid, $5::uuid, $6::varchar, 
-		$7::int, $8::jsonb
+		$4::uuid, $5::uuid, $6::int, 
+		$7::jsonb
 	)
 	`
 
@@ -147,8 +66,8 @@ func (q *TaskQueries) CreateNewTask(t *models.Task) error {
 	_, err := q.Exec(
 		query,
 		t.ID, t.CreatedAt, t.UpdatedAt,
-		t.UserID, t.ProjectID, t.Alias,
-		t.TaskStatus, t.TaskAttrs,
+		t.UserID, t.ProjectID, t.TaskStatus,
+		t.TaskAttrs,
 	)
 	if err != nil {
 		// Return only error.
@@ -160,7 +79,7 @@ func (q *TaskQueries) CreateNewTask(t *models.Task) error {
 }
 
 // UpdateTask method for updating task by given Task object.
-func (q *TaskQueries) UpdateTask(id uuid.UUID, t *models.Task) error {
+func (q *TaskQueries) UpdateTask(id uuid.UUID, t *models.UpdateTask) error {
 	// Define query string.
 	query := `
 	UPDATE
@@ -174,7 +93,7 @@ func (q *TaskQueries) UpdateTask(id uuid.UUID, t *models.Task) error {
 	`
 
 	// Send query to database.
-	_, err := q.Exec(query, id, t.UpdatedAt, t.TaskStatus, t.TaskAttrs)
+	_, err := q.Exec(query, id, time.Now(), t.TaskStatus, t.TaskAttrs)
 	if err != nil {
 		// Return only error.
 		return err
@@ -201,4 +120,54 @@ func (q *TaskQueries) DeleteTask(id uuid.UUID) error {
 
 	// This query returns nothing.
 	return nil
+}
+
+// GetTaskByID method for getting one project by given ID.
+func (q *TaskQueries) GetTaskByID(task_id uuid.UUID) (models.GetTask, int, error) {
+	// Define project variable.
+	task := models.GetTask{}
+
+	// Define query string.
+	query := embed_files.SQLQueryGetOneTaskByID
+
+	// Send query to database.
+	err := q.Get(&task, query, task_id)
+
+	// Get quey result.
+	switch err {
+	case nil:
+		// Return object and 200 OK.
+		return task, fiber.StatusOK, nil
+	case sql.ErrNoRows:
+		// Return empty object and 404 error.
+		return task, fiber.StatusNotFound, err
+	default:
+		// Return empty object and 400 error.
+		return task, fiber.StatusBadRequest, err
+	}
+}
+
+// GetTasksByProjectID method for getting all tasks for given project.
+func (q *TaskQueries) GetTasksByProjectID(project_id uuid.UUID) ([]models.GetTasks, int, error) {
+	// Define project variable.
+	tasks := []models.GetTasks{}
+
+	// Define query string.
+	query := embed_files.SQLQueryGetManyTasksByProjectID
+
+	// Send query to database.
+	err := q.Select(&tasks, query, project_id)
+
+	// Get query result.
+	switch err {
+	case nil:
+		// Return object and 200 OK.
+		return tasks, fiber.StatusOK, nil
+	case sql.ErrNoRows:
+		// Return empty object and 404 error.
+		return tasks, fiber.StatusNotFound, err
+	default:
+		// Return empty object and 400 error.
+		return tasks, fiber.StatusBadRequest, err
+	}
 }

@@ -162,6 +162,14 @@ func UpdateProject(c *fiber.Ctx) error {
 		return utilities.CheckForError(c, err, 400, "project", err.Error())
 	}
 
+	// Create a new validator.
+	validate := utilities.NewValidator()
+
+	// Validate project fields.
+	if err := validate.Struct(jsonBody); err != nil {
+		return utilities.CheckForValidationError(c, err, 400, "project")
+	}
+
 	// Create database connection.
 	db, err := database.OpenDBConnection()
 	if err != nil {
@@ -179,23 +187,8 @@ func UpdateProject(c *fiber.Ctx) error {
 
 	// Only the creator can delete his project.
 	if foundedProject.UserID == userID {
-		// Create new Project struct.
-		project := &models.Project{}
-
-		// Set project attributes from JSON body:
-		project.ProjectStatus = jsonBody.ProjectStatus // 0 == draft, 1 == active, 2 == unpublished
-		project.ProjectAttrs = jsonBody.ProjectAttrs
-
-		// Create a new validator for a Project model.
-		validate := utilities.NewValidator()
-
-		// Validate project fields.
-		if err := validate.Struct(project); err != nil {
-			return utilities.CheckForValidationError(c, err, 400, "project")
-		}
-
 		// Update project by given ID.
-		if err := db.UpdateProject(foundedProject.ID, project); err != nil {
+		if err := db.UpdateProject(foundedProject.ID, jsonBody); err != nil {
 			return utilities.CheckForError(c, err, 400, "project", err.Error())
 		}
 
