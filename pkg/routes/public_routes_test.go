@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 )
@@ -32,14 +33,14 @@ func TestPublicRoutes(t *testing.T) {
 			200,
 		},
 		{
-			"fail: get all projects by not found username",
-			"GET", "/v1/user/not-found/projects",
+			"fail: get all projects by not found user id",
+			"GET", fmt.Sprintf("/v1/user/%s/projects", uuid.New().String()),
 			200,
 		},
 		// Failed test cases:
 		{
-			"fail: get project by not found alias",
-			"GET", "/v1/project/123456",
+			"fail: get project by not found id",
+			"GET", fmt.Sprintf("/v1/project/%s", uuid.New().String()),
 			404,
 		},
 	}

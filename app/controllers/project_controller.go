@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"time"
-
 	"Komentory/api/app/models"
 	"Komentory/api/platform/database"
 
@@ -33,10 +31,40 @@ func GetProjects(c *fiber.Ctx) error {
 	})
 }
 
-// GetProjectsByUsername func for get all exists projects by given username.
-func GetProjectsByUsername(c *fiber.Ctx) error {
+// GetProjectByID func for get project by given project ID.
+func GetProjectByID(c *fiber.Ctx) error {
 	// Catch project ID from URL.
-	username := c.Params("username")
+	projectID, err := uuid.Parse(c.Params("project_id"))
+	if err != nil {
+		return utilities.CheckForError(c, err, 400, "project id", err.Error())
+	}
+
+	// Create database connection.
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return utilities.CheckForErrorWithStatusCode(c, err, 500, "database", err.Error())
+	}
+
+	// Get project by ID.
+	project, status, err := db.GetProjectByID(projectID)
+	if err != nil {
+		return utilities.CheckForError(c, err, status, "project", err.Error())
+	}
+
+	// Return status 200 OK.
+	return c.JSON(fiber.Map{
+		"status":  fiber.StatusOK,
+		"project": project,
+	})
+}
+
+// GetProjectsByUserID func for get all exists projects by given user ID.
+func GetProjectsByUserID(c *fiber.Ctx) error {
+	// Catch project ID from URL.
+	userID, err := uuid.Parse(c.Params("user_id"))
+	if err != nil {
+		return utilities.CheckForError(c, err, 400, "user id", err.Error())
+	}
 
 	// Create database connection.
 	db, err := database.OpenDBConnection()
@@ -45,7 +73,7 @@ func GetProjectsByUsername(c *fiber.Ctx) error {
 	}
 
 	// Get all projects by username.
-	projects, status, err := db.GetProjectsByUsername(username)
+	projects, status, err := db.GetProjectsByUserID(userID)
 	if err != nil {
 		return utilities.CheckForError(c, err, status, "projects", err.Error())
 	}
@@ -55,30 +83,6 @@ func GetProjectsByUsername(c *fiber.Ctx) error {
 		"status":   fiber.StatusOK,
 		"count":    len(projects),
 		"projects": projects,
-	})
-}
-
-// GetProject func for get project by given project alias.
-func GetProjectByAlias(c *fiber.Ctx) error {
-	// Catch project ID from URL.
-	alias := c.Params("alias")
-
-	// Create database connection.
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, 500, "database", err.Error())
-	}
-
-	// Get project by ID.
-	project, status, err := db.GetProjectByAlias(alias)
-	if err != nil {
-		return utilities.CheckForError(c, err, status, "project", err.Error())
-	}
-
-	// Return status 200 OK.
-	return c.JSON(fiber.Map{
-		"status":  fiber.StatusOK,
-		"project": project,
 	})
 }
 
@@ -92,35 +96,27 @@ func CreateNewProject(c *fiber.Ctx) error {
 	// Validate JWT token.
 	claims, err := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
 	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, 401, "jwt", err.Error())
+		return utilities.CheckForError(c, err, 401, "jwt", err.Error())
 	}
 
-	// Create new ProjectAttrs struct
-	projectAttrs := &models.ProjectAttrs{}
+	// Create a new struct for JSON body.
+	jsonBody := &models.CreateNewProject{}
 
 	// Check, if received JSON data is valid.
-	if err := c.BodyParser(projectAttrs); err != nil {
+	if err := c.BodyParser(jsonBody); err != nil {
 		return utilities.CheckForError(c, err, 400, "project", err.Error())
 	}
 
-	// Generate random string for the project's alias.
-	randomAlias, err := utilities.GenerateNewNanoID(utilities.LowerCaseChars, 24)
-	if err != nil {
-		return utilities.CheckForError(c, err, 400, "project alias", err.Error())
-	}
-
-	// Create new ProjectAttrs struct
+	// Create new Project struct.
 	project := &models.Project{}
 
 	// Set initial data for project:
 	project.ID = uuid.New()
-	project.CreatedAt = time.Now()
 	project.UserID = claims.UserID
-	project.Alias = randomAlias
-	project.ProjectStatus = 0 // 0 == draft, 1 == active, 2 == unpublished
 
-	// Set project attributes from request body:
-	project.ProjectAttrs = *projectAttrs
+	// Set project attributes from JSON body:
+	project.ProjectStatus = jsonBody.ProjectStatus // 0 == draft, 1 == active, 2 == unpublished
+	project.ProjectAttrs = jsonBody.ProjectAttrs
 
 	// Create a new validator for a Project model.
 	validate := utilities.NewValidator()
@@ -138,7 +134,7 @@ func CreateNewProject(c *fiber.Ctx) error {
 
 	// Create a new project with given attrs.
 	if err := db.CreateNewProject(project); err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, 400, "project", err.Error())
+		return utilities.CheckForError(c, err, 400, "project", err.Error())
 	}
 
 	// Return status 201 created.
@@ -155,14 +151,14 @@ func UpdateProject(c *fiber.Ctx) error {
 	// Validate JWT token.
 	claims, err := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
 	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, 401, "jwt", err.Error())
+		return utilities.CheckForError(c, err, 401, "jwt", err.Error())
 	}
 
-	// Create new Project struct
-	project := &models.Project{}
+	// Create a new struct for JSON body.
+	jsonBody := &models.UpdateProject{}
 
 	// Check, if received JSON data is valid.
-	if err := c.BodyParser(project); err != nil {
+	if err := c.BodyParser(jsonBody); err != nil {
 		return utilities.CheckForError(c, err, 400, "project", err.Error())
 	}
 
@@ -173,9 +169,9 @@ func UpdateProject(c *fiber.Ctx) error {
 	}
 
 	// Checking, if project with given ID is exists.
-	foundedProject, status, err := db.GetProjectByID(project.ID)
+	foundedProject, status, err := db.FindProjectByID(jsonBody.ID)
 	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, status, "project", err.Error())
+		return utilities.CheckForError(c, err, status, "project", err.Error())
 	}
 
 	// Set user ID from JWT data of current user.
@@ -183,9 +179,12 @@ func UpdateProject(c *fiber.Ctx) error {
 
 	// Only the creator can delete his project.
 	if foundedProject.UserID == userID {
-		// Set initialized default data for project:
-		project.UserID = userID
-		project.UpdatedAt = time.Now()
+		// Create new Project struct.
+		project := &models.Project{}
+
+		// Set project attributes from JSON body:
+		project.ProjectStatus = jsonBody.ProjectStatus // 0 == draft, 1 == active, 2 == unpublished
+		project.ProjectAttrs = jsonBody.ProjectAttrs
 
 		// Create a new validator for a Project model.
 		validate := utilities.NewValidator()
@@ -197,14 +196,14 @@ func UpdateProject(c *fiber.Ctx) error {
 
 		// Update project by given ID.
 		if err := db.UpdateProject(foundedProject.ID, project); err != nil {
-			return utilities.CheckForErrorWithStatusCode(c, err, 400, "project", err.Error())
+			return utilities.CheckForError(c, err, 400, "project", err.Error())
 		}
 
 		// Return status 204 no content.
 		return c.SendStatus(fiber.StatusNoContent)
 	} else {
 		// Return status 403 and permission denied error message.
-		return utilities.ThrowJSONErrorWithStatusCode(c, 403, "project", "you have no permissions")
+		return utilities.ThrowJSONError(c, 403, "project", "you have no permissions")
 	}
 }
 
@@ -218,14 +217,14 @@ func DeleteProject(c *fiber.Ctx) error {
 	// Validate JWT token.
 	claims, err := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
 	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, 401, "jwt", err.Error())
+		return utilities.CheckForError(c, err, 401, "jwt", err.Error())
 	}
 
-	// Create new Project struct
-	project := &models.Project{}
+	// Create a new struct for JSON body.
+	jsonBody := &models.DeleteProject{}
 
 	// Check, if received JSON data is valid.
-	if err := c.BodyParser(project); err != nil {
+	if err := c.BodyParser(jsonBody); err != nil {
 		return utilities.CheckForError(c, err, 400, "project", err.Error())
 	}
 
@@ -233,7 +232,7 @@ func DeleteProject(c *fiber.Ctx) error {
 	validate := utilities.NewValidator()
 
 	// Validate project fields.
-	if err := validate.StructPartial(project, "id"); err != nil {
+	if err := validate.Struct(jsonBody); err != nil {
 		return utilities.CheckForValidationError(c, err, 400, "project")
 	}
 
@@ -244,9 +243,9 @@ func DeleteProject(c *fiber.Ctx) error {
 	}
 
 	// Checking, if project with given ID is exists.
-	foundedProject, status, err := db.GetProjectByID(project.ID)
+	foundedProject, status, err := db.FindProjectByID(jsonBody.ID)
 	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, status, "project", err.Error())
+		return utilities.CheckForError(c, err, status, "project", err.Error())
 	}
 
 	// Set user ID from JWT data of current user.
@@ -256,13 +255,13 @@ func DeleteProject(c *fiber.Ctx) error {
 	if foundedProject.UserID == userID {
 		// Delete project by given ID.
 		if err := db.DeleteProject(foundedProject.ID); err != nil {
-			return utilities.CheckForErrorWithStatusCode(c, err, 400, "project", err.Error())
+			return utilities.CheckForError(c, err, 400, "project", err.Error())
 		}
 
 		// Return status 204 no content.
 		return c.SendStatus(fiber.StatusNoContent)
 	} else {
 		// Return status 403 and permission denied error message.
-		return utilities.ThrowJSONErrorWithStatusCode(c, 403, "project", "you have no permissions")
+		return utilities.ThrowJSONError(c, 403, "project", "you have no permissions")
 	}
 }

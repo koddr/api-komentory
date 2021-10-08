@@ -72,7 +72,7 @@ func CreateNewTask(c *fiber.Ctx) error {
 	// Validate JWT token.
 	claims, err := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
 	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, 401, "jwt", err.Error())
+		return utilities.CheckForError(c, err, 401, "jwt", err.Error())
 	}
 
 	// Create new Task struct
@@ -90,7 +90,7 @@ func CreateNewTask(c *fiber.Ctx) error {
 	}
 
 	// Checking, if project with given ID is exists.
-	foundedProject, status, err := db.GetProjectByID(task.ProjectID)
+	foundedProject, status, err := db.FindProjectByID(task.ProjectID)
 	if err != nil {
 		return utilities.CheckForError(c, err, status, "project", err.Error())
 	}
@@ -124,14 +124,14 @@ func CreateNewTask(c *fiber.Ctx) error {
 
 		// Create a new task with given attrs.
 		if err := db.CreateNewTask(task); err != nil {
-			return utilities.CheckForErrorWithStatusCode(c, err, 400, "task", err.Error())
+			return utilities.CheckForError(c, err, 400, "task", err.Error())
 		}
 
 		// Return status 201 created.
 		return c.SendStatus(fiber.StatusCreated)
 	} else {
 		// Return status 403 and permission denied error message.
-		return utilities.ThrowJSONErrorWithStatusCode(c, 403, "project", "you have no permissions")
+		return utilities.ThrowJSONError(c, 403, "project", "you have no permissions")
 	}
 }
 
