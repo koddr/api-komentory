@@ -1,5 +1,9 @@
 package models
 
+// ---
+// Structures to describing webhook model.
+// ---
+
 // PostmarkSuppressSendingWebhook struct to describe Postmark suppress sending webhook object.
 //  - Recipient == subscriber email address;
 //  - SuppressSending == true (deactivate) | false (reactivate);

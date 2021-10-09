@@ -83,6 +83,10 @@ type GetTask struct {
 	AnswersCount int `db:"answers_count" json:"answers_count"`
 }
 
+// ---
+// Structures to getting many tasks.
+// ---
+
 // GetTasks struct to describe getting tasks list.
 type GetTasks struct {
 	ID        uuid.UUID `db:"id" json:"id"`

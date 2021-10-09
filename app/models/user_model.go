@@ -8,6 +8,10 @@ import (
 	"github.com/google/uuid"
 )
 
+// ---
+// Structures to describing user model.
+// ---
+
 // User struct to describe User object.
 type User struct {
 	ID    uuid.UUID `json:"id"`
@@ -33,6 +37,10 @@ type EmailSubscriptions struct {
 	Marketing     bool `json:"marketing"`     // like "invite friends and get X"
 }
 
+// ---
+// Public structures to building better model JSON output.
+// ---
+
 // AuthorAttrs struct to describe author of given object.
 type AuthorAttrs struct {
 	ID        uuid.UUID `json:"user_id"`
@@ -41,14 +49,20 @@ type AuthorAttrs struct {
 	Picture   string    `json:"picture"`
 }
 
+// ---
+// This methods simply returns the JSON-encoded representation of the struct.
+// ---
+
 // Value make the UserAttrs struct implement the driver.Valuer interface.
-// This method simply returns the JSON-encoded representation of the struct.
 func (u UserAttrs) Value() (driver.Value, error) {
 	return json.Marshal(u)
 }
 
+// ---
+// This methods simply decodes a JSON-encoded value into the struct fields.
+// ---
+
 // Scan make the UserAttrs struct implement the sql.Scanner interface.
-// This method simply decodes a JSON-encoded value into the struct fields.
 func (u *UserAttrs) Scan(value interface{}) error {
 	j, ok := value.([]byte)
 	if !ok {

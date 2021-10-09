@@ -1,5 +1,9 @@
 package models
 
+// ---
+// Structures to describing file model.
+// ---
+
 // FileFromCDN struct to describe file object from CDN.
 type FileFromCDN struct {
 	Key       string `json:"key"`
