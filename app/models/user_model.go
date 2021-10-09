@@ -33,6 +33,14 @@ type EmailSubscriptions struct {
 	Marketing     bool `json:"marketing"`     // like "invite friends and get X"
 }
 
+// AuthorAttrs struct to describe author of given object.
+type AuthorAttrs struct {
+	ID        uuid.UUID `json:"user_id"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
+	Picture   string    `json:"picture"`
+}
+
 // Value make the UserAttrs struct implement the driver.Valuer interface.
 // This method simply returns the JSON-encoded representation of the struct.
 func (u UserAttrs) Value() (driver.Value, error) {
@@ -48,4 +56,13 @@ func (u *UserAttrs) Scan(value interface{}) error {
 	}
 
 	return json.Unmarshal(j, &u)
+}
+
+// Scan make the authorAttrs (private) struct implement the sql.Scanner interface.
+func (t *AuthorAttrs) Scan(value interface{}) error {
+	j, ok := value.([]byte)
+	if !ok {
+		return errors.New("type assertion to []byte failed")
+	}
+	return json.Unmarshal(j, &t)
 }

@@ -25,7 +25,8 @@ func (q *TaskQueries) FindTaskByID(task_id uuid.UUID) (models.Task, int, error) 
 	query := `
 	SELECT
 		id,
-		user_id
+		user_id,
+		project_id
 	FROM
 		tasks
 	WHERE

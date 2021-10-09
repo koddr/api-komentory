@@ -10,10 +10,13 @@ import (
 	"github.com/google/uuid"
 )
 
-// GetAnswerByAlias func for get one answer by alias.
-func GetAnswerByAlias(c *fiber.Ctx) error {
+// GetAnswerByID func for get one answer by ID.
+func GetAnswerByID(c *fiber.Ctx) error {
 	// Catch answer ID from URL.
-	alias := c.Params("alias")
+	answerID, err := uuid.Parse(c.Params("answer_id"))
+	if err != nil {
+		return utilities.CheckForError(c, err, 400, "answer id", err.Error())
+	}
 
 	// Create database connection.
 	db, err := database.OpenDBConnection()
@@ -22,7 +25,7 @@ func GetAnswerByAlias(c *fiber.Ctx) error {
 	}
 
 	// Get one answer.
-	answer, status, err := db.GetAnswerByAlias(alias)
+	answer, status, err := db.GetAnswerByID(answerID)
 	if err != nil {
 		return utilities.CheckForError(c, err, status, "answer", err.Error())
 	}
@@ -31,34 +34,6 @@ func GetAnswerByAlias(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"status": fiber.StatusOK,
 		"answer": answer,
-	})
-}
-
-// GetAnswersByProjectID func for get all exists answers by project ID.
-func GetAnswersByProjectID(c *fiber.Ctx) error {
-	// Catch project ID from URL.
-	projectID, err := uuid.Parse(c.Params("project_id"))
-	if err != nil {
-		return utilities.CheckForError(c, err, 400, "project id", err.Error())
-	}
-
-	// Create database connection.
-	db, err := database.OpenDBConnection()
-	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, 500, "database", err.Error())
-	}
-
-	// Get all answers.
-	answers, status, err := db.GetAnswersByProjectID(projectID)
-	if err != nil {
-		return utilities.CheckForError(c, err, status, "answers", err.Error())
-	}
-
-	// Return status 200 OK.
-	return c.JSON(fiber.Map{
-		"status":  fiber.StatusOK,
-		"count":   len(answers),
-		"answers": answers,
 	})
 }
 
@@ -90,6 +65,34 @@ func GetAnswersByTaskID(c *fiber.Ctx) error {
 	})
 }
 
+// GetAnswersByProjectID func for get all exists answers by project ID.
+func GetAnswersByProjectID(c *fiber.Ctx) error {
+	// Catch project ID from URL.
+	projectID, err := uuid.Parse(c.Params("project_id"))
+	if err != nil {
+		return utilities.CheckForError(c, err, 400, "project id", err.Error())
+	}
+
+	// Create database connection.
+	db, err := database.OpenDBConnection()
+	if err != nil {
+		return utilities.CheckForErrorWithStatusCode(c, err, 500, "database", err.Error())
+	}
+
+	// Get all answers.
+	answers, status, err := db.GetAnswersByProjectID(projectID)
+	if err != nil {
+		return utilities.CheckForError(c, err, status, "answers", err.Error())
+	}
+
+	// Return status 200 OK.
+	return c.JSON(fiber.Map{
+		"status":  fiber.StatusOK,
+		"count":   len(answers),
+		"answers": answers,
+	})
+}
+
 // CreateNewAnswer func for create a new answer for project.
 func CreateNewAnswer(c *fiber.Ctx) error {
 	// Set needed credentials.
@@ -100,7 +103,7 @@ func CreateNewAnswer(c *fiber.Ctx) error {
 	// Validate JWT token.
 	claims, err := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
 	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, 401, "jwt", err.Error())
+		return utilities.CheckForError(c, err, 401, "jwt", err.Error())
 	}
 
 	// Create new Answer struct
@@ -132,19 +135,12 @@ func CreateNewAnswer(c *fiber.Ctx) error {
 	// Set user ID from JWT data of current user.
 	userID := claims.UserID
 
-	// Generate random string for the answer's alias.
-	randomAlias, err := utilities.GenerateNewNanoID(utilities.LowerCaseWithoutDashesChars, 16)
-	if err != nil {
-		return utilities.CheckForError(c, err, 400, "task alias", err.Error())
-	}
-
 	// Set initialized default data for answer:
 	answer.ID = uuid.New()
 	answer.CreatedAt = time.Now()
 	answer.UserID = userID
 	answer.ProjectID = foundedProject.ID
 	answer.TaskID = foundedTask.ID
-	answer.Alias = randomAlias
 	answer.AnswerStatus = 0 // 0 == draft, 1 == active, 2 == blocked
 
 	// Create a new validator for a Answer model.
@@ -157,7 +153,7 @@ func CreateNewAnswer(c *fiber.Ctx) error {
 
 	// Create a new answer with given attrs.
 	if err := db.CreateNewAnswer(answer); err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, 400, "answer", err.Error())
+		return utilities.CheckForError(c, err, 400, "answer", err.Error())
 	}
 
 	// Return status 201 created.
@@ -174,25 +170,33 @@ func UpdateAnswer(c *fiber.Ctx) error {
 	// Validate JWT token.
 	claims, err := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
 	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, 401, "jwt", err.Error())
+		return utilities.CheckForError(c, err, 401, "jwt", err.Error())
 	}
 
-	// Create new Answer struct
-	answer := &models.Answer{}
+	// Create a new struct for JSON body.
+	jsonBody := &models.UpdateAnswer{}
 
 	// Check, if received JSON data is valid.
-	if err := c.BodyParser(answer); err != nil {
-		return utilities.CheckForError(c, err, 400, "answer", err.Error())
+	if err := c.BodyParser(jsonBody); err != nil {
+		return utilities.CheckForError(c, err, 400, "answer json body", err.Error())
+	}
+
+	// Create a new validator.
+	validate := utilities.NewValidator()
+
+	// Validate answer fields.
+	if err := validate.Struct(jsonBody); err != nil {
+		return utilities.CheckForValidationError(c, err, 400, "answer")
 	}
 
 	// Create database connection.
 	db, err := database.OpenDBConnection()
 	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, 500, "database", err.Error())
+		return utilities.CheckForError(c, err, 500, "database", err.Error())
 	}
 
 	// Checking, if answer with given ID is exists.
-	foundedAnswer, status, err := db.GetAnswerByID(answer.ID)
+	foundedAnswer, status, err := db.FindAnswerByID(jsonBody.ID)
 	if err != nil {
 		return utilities.CheckForError(c, err, status, "answer", err.Error())
 	}
@@ -202,30 +206,16 @@ func UpdateAnswer(c *fiber.Ctx) error {
 
 	// Only the creator can update his answer.
 	if foundedAnswer.UserID == userID {
-		// Set initialized default data for answer:
-		answer.UpdatedAt = time.Now()
-		answer.UserID = userID
-		answer.ProjectID = foundedAnswer.ProjectID
-		answer.TaskID = foundedAnswer.TaskID
-
-		// Create a new validator for a Answer model.
-		validate := utilities.NewValidator()
-
-		// Validate answer fields.
-		if err := validate.Struct(answer); err != nil {
-			return utilities.CheckForValidationError(c, err, 400, "answer")
-		}
-
 		// Update answer by given ID.
-		if err := db.UpdateAnswer(foundedAnswer.ID, answer); err != nil {
-			return utilities.CheckForErrorWithStatusCode(c, err, 400, "answer", err.Error())
+		if err := db.UpdateAnswer(foundedAnswer.ID, jsonBody); err != nil {
+			return utilities.CheckForError(c, err, 400, "answer", err.Error())
 		}
 
 		// Return status 204 no content.
 		return c.SendStatus(fiber.StatusNoContent)
 	} else {
 		// Return status 403 and permission denied error message.
-		return utilities.ThrowJSONErrorWithStatusCode(c, 403, "answer", "you have no permissions")
+		return utilities.ThrowJSONError(c, 403, "answer", "you have no permissions")
 
 	}
 }
@@ -240,14 +230,14 @@ func DeleteAnswer(c *fiber.Ctx) error {
 	// Validate JWT token.
 	claims, err := utilities.TokenValidateExpireTimeAndCredentials(c, credentials)
 	if err != nil {
-		return utilities.CheckForErrorWithStatusCode(c, err, 401, "jwt", err.Error())
+		return utilities.CheckForError(c, err, 401, "jwt", err.Error())
 	}
 
-	// Create new Answer struct
-	answer := &models.Answer{}
+	// Create a new struct for JSON body.
+	jsonBody := &models.DeleteAnswer{}
 
 	// Check, if received JSON data is valid.
-	if err := c.BodyParser(answer); err != nil {
+	if err := c.BodyParser(jsonBody); err != nil {
 		return utilities.CheckForError(c, err, 400, "answer", err.Error())
 	}
 
@@ -255,7 +245,7 @@ func DeleteAnswer(c *fiber.Ctx) error {
 	validate := utilities.NewValidator()
 
 	// Validate answer fields.
-	if err := validate.StructPartial(answer, "id"); err != nil {
+	if err := validate.Struct(jsonBody); err != nil {
 		return utilities.CheckForValidationError(c, err, 400, "answer")
 	}
 
@@ -266,7 +256,7 @@ func DeleteAnswer(c *fiber.Ctx) error {
 	}
 
 	// Checking, if answer with given ID is exists.
-	foundedAnswer, status, err := db.GetAnswerByID(answer.ID)
+	foundedAnswer, status, err := db.FindAnswerByID(jsonBody.ID)
 	if err != nil {
 		return utilities.CheckForError(c, err, status, "answer", err.Error())
 	}
@@ -285,6 +275,6 @@ func DeleteAnswer(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusNoContent)
 	} else {
 		// Return status 403 and permission denied error message.
-		return utilities.ThrowJSONErrorWithStatusCode(c, 403, "answer", "you have no permissions")
+		return utilities.ThrowJSONError(c, 403, "answer", "you have no permissions")
 	}
 }

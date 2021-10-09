@@ -76,10 +76,14 @@ type GetProject struct {
 	Attrs     ProjectAttrs `db:"project_attrs" json:"attrs"`
 
 	// Fields for JOIN tables:
-	Author     authorAttrs  `db:"author" json:"author"`
+	Author     AuthorAttrs  `db:"author" json:"author"`
 	TasksCount int          `db:"tasks_count" json:"tasks_count"`
 	Tasks      projectTasks `db:"tasks" json:"tasks"`
 }
+
+// ---
+// Structures to getting many projects.
+// ---
 
 // GetProjects struct to describe getting list of projects.
 type GetProjects struct {
@@ -89,21 +93,13 @@ type GetProjects struct {
 	Attrs     ProjectAttrs `db:"project_attrs" json:"attrs"`
 
 	// Fields for JOIN tables:
-	Author     authorAttrs `db:"author" json:"author"`
+	Author     AuthorAttrs `db:"author" json:"author"`
 	TasksCount int         `db:"tasks_count" json:"tasks_count"`
 }
 
 // ---
 // Private structures to building better model JSON output.
 // ---
-
-// authorAttrs (private) struct to describe author of given project.
-type authorAttrs struct {
-	ID        uuid.UUID `json:"user_id"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
-	Picture   string    `json:"picture"`
-}
 
 // projectTasks (private) struct to describe getting list of tasks for a project.
 type projectTasks []*getProjectTasks
@@ -137,15 +133,6 @@ func (p *ProjectAttrs) Scan(value interface{}) error {
 		return errors.New("type assertion to []byte failed")
 	}
 	return json.Unmarshal(j, &p)
-}
-
-// Scan make the authorAttrs (private) struct implement the sql.Scanner interface.
-func (t *authorAttrs) Scan(value interface{}) error {
-	j, ok := value.([]byte)
-	if !ok {
-		return errors.New("type assertion to []byte failed")
-	}
-	return json.Unmarshal(j, &t)
 }
 
 // Scan make the projectTasks (private) struct implement the sql.Scanner interface.

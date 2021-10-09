@@ -120,6 +120,31 @@ func (q *ProjectQueries) DeleteProject(id uuid.UUID) error {
 	return nil
 }
 
+// GetProjectByAlias method for getting one project by given alias.
+func (q *ProjectQueries) GetProjectByID(project_id uuid.UUID) (models.GetProject, int, error) {
+	// Define project variable.
+	project := models.GetProject{}
+
+	// Define query string.
+	query := embed_files.SQLQueryGetOneProjectByID
+
+	// Send query to database.
+	err := q.Get(&project, query, project_id)
+
+	// Get query result.
+	switch err {
+	case nil:
+		// Return object and 200 OK.
+		return project, fiber.StatusOK, nil
+	case sql.ErrNoRows:
+		// Return empty object and 404 error.
+		return project, fiber.StatusNotFound, err
+	default:
+		// Return empty object and 400 error.
+		return project, fiber.StatusBadRequest, err
+	}
+}
+
 // GetProjects method for getting all projects.
 func (q *ProjectQueries) GetProjects() ([]models.GetProjects, int, error) {
 	// Define project variable.
@@ -167,30 +192,5 @@ func (q *ProjectQueries) GetProjectsByUserID(user_id uuid.UUID) ([]models.GetPro
 	default:
 		// Return empty object and 400 error.
 		return projects, fiber.StatusBadRequest, err
-	}
-}
-
-// GetProjectByAlias method for getting one project by given alias.
-func (q *ProjectQueries) GetProjectByID(project_id uuid.UUID) (models.GetProject, int, error) {
-	// Define project variable.
-	project := models.GetProject{}
-
-	// Define query string.
-	query := embed_files.SQLQueryGetOneProjectByID
-
-	// Send query to database.
-	err := q.Get(&project, query, project_id)
-
-	// Get query result.
-	switch err {
-	case nil:
-		// Return object and 200 OK.
-		return project, fiber.StatusOK, nil
-	case sql.ErrNoRows:
-		// Return empty object and 404 error.
-		return project, fiber.StatusNotFound, err
-	default:
-		// Return empty object and 400 error.
-		return project, fiber.StatusBadRequest, err
 	}
 }

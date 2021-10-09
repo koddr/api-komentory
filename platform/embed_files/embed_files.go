@@ -22,4 +22,16 @@ var (
 	// SQLQueryGetManyProjectsByUserID string with query for getting all (many) tasks by project ID.
 	//go:embed sql_queries/task_getManyByProjectID.sql
 	SQLQueryGetManyTasksByProjectID string
+
+	// SQLQueryGetOneAnswerByID string with query for getting one answer by ID.
+	//go:embed sql_queries/answer_getOneByID.sql
+	SQLQueryGetOneAnswerByID string
+
+	// SQLQueryGetManyAnswersByTaskID string with query for getting all (many) answers by task ID.
+	//go:embed sql_queries/answer_getManyByTaskID.sql
+	SQLQueryGetManyAnswersByTaskID string
+
+	// SQLQueryGetManyAnswersByProjectID string with query for getting all (many) answers by project ID.
+	//go:embed sql_queries/answer_getManyByProjectID.sql
+	SQLQueryGetManyAnswersByProjectID string
 )

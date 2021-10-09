@@ -25,6 +25,6 @@ func PublicRoutes(a *fiber.App) {
 	r.Get("/task/:task_id/answers", controllers.GetAnswersByTaskID)          // get answers by task ID
 
 	// Routes for GET method (single, non-cached):
-	r.Get("/task/:task_id", controllers.GetTaskByID)          // get one task by ID
-	r.Get("/answer/:answer_id", controllers.GetAnswerByAlias) // get one answer by ID
+	r.Get("/task/:task_id", controllers.GetTaskByID)       // get one task by ID
+	r.Get("/answer/:answer_id", controllers.GetAnswerByID) // get one answer by ID
 }
