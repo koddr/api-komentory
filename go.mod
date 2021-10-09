@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/Komentory/utilities v0.7.3
 	github.com/gofiber/fiber/v2 v2.20.1
-	github.com/gofiber/helmet/v2 v2.2.2
+	github.com/gofiber/helmet/v2 v2.2.3
 	github.com/gofiber/jwt/v2 v2.2.7
 	github.com/google/uuid v1.3.0
 	github.com/h2non/filetype v1.1.1
@@ -48,7 +48,7 @@ require (
 	github.com/valyala/fasthttp v1.30.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
-	golang.org/x/net v0.0.0-20211007125505-59d4e928ea9d // indirect
+	golang.org/x/net v0.0.0-20211008194852-3b03d305991f // indirect
 	golang.org/x/sys v0.0.0-20211007075335-d3039528d8ac // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/ini.v1 v1.63.2 // indirect
