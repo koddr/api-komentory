@@ -43,7 +43,7 @@ docker.postgres:
 		-e POSTGRES_DB=postgres \
 		-v ${HOME}/dev-postgres/data/:/var/lib/postgresql/data \
 		-p 5432:5432 \
-		postgres
+		postgres:13
 
 docker.redis:
 	docker run --rm -d \
