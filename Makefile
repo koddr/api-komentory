@@ -6,10 +6,10 @@ BUILD_DIR = $(PWD)/build
 clean:
 	rm -rf ./build
 
-security:
-	gosec -quiet ./...
+critic:
+	gocritic check ./...
 
-test: security
+test: critic security
 	go test -cover ./...
 
 build: clean test
