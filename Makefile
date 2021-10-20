@@ -6,8 +6,11 @@ BUILD_DIR = $(PWD)/build
 clean:
 	rm -rf ./build
 
+security:
+	gosec -quiet ./...
+
 critic:
-	gocritic check ./...
+	gocritic check -enableAll ./...
 
 test: critic security
 	go test -cover ./...
@@ -18,21 +21,11 @@ build: clean test
 run: build
 	$(BUILD_DIR)/$(APP_NAME)
 
-docker.run: docker.network docker.postgres docker.fiber docker.redis migrate.up
+docker.run: docker.network docker.postgres docker.redis
 
 docker.network:
 	docker network inspect dev-network >/dev/null 2>&1 || \
 	docker network create -d bridge dev-network
-
-docker.fiber.build:
-	docker build -t fiber .
-
-docker.fiber: docker.fiber.build
-	docker run --rm -d \
-		--name dev-fiber \
-		--network dev-network \
-		-p 5000:5000 \
-		fiber
 
 docker.postgres:
 	docker run --rm -d \
@@ -52,10 +45,7 @@ docker.redis:
 		-p 6379:6379 \
 		redis
 
-docker.stop: docker.stop.fiber docker.stop.postgres docker.stop.redis
-
-docker.stop.fiber:
-	docker stop dev-fiber
+docker.stop: docker.stop.postgres docker.stop.redis
 
 docker.stop.postgres:
 	docker stop dev-postgres

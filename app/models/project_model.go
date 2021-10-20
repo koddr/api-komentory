@@ -118,7 +118,7 @@ type getProjectTasks struct {
 // ---
 
 // Value make the ProjectAttrs struct implement the driver.Valuer interface.
-func (p ProjectAttrs) Value() (driver.Value, error) {
+func (p *ProjectAttrs) Value() (driver.Value, error) {
 	return json.Marshal(p)
 }
 

@@ -113,7 +113,7 @@ type taskStep struct {
 // ---
 
 // Value make the TaskAttrs struct implement the driver.Valuer interface.
-func (t TaskAttrs) Value() (driver.Value, error) {
+func (t *TaskAttrs) Value() (driver.Value, error) {
 	return json.Marshal(t)
 }
 

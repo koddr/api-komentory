@@ -3,7 +3,6 @@ package helpers
 import (
 	"Komentory/api/app/models"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -33,7 +32,7 @@ func GetLocalFileInfo(pathToFile, fileType string) (*models.LocalFileInfo, error
 	}
 
 	// Read given file from file system.
-	buf, err := ioutil.ReadFile(filepath.Clean(pathToFile))
+	buf, err := os.ReadFile(filepath.Clean(pathToFile))
 	if err != nil {
 		return nil, err
 	}
