@@ -11,7 +11,7 @@ require (
 	github.com/h2non/filetype v1.1.1
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/joho/godotenv v1.4.0
-	github.com/minio/minio-go/v7 v7.0.14
+	github.com/minio/minio-go/v7 v7.0.15
 	github.com/stretchr/testify v1.7.0
 )
 
@@ -48,8 +48,8 @@ require (
 	github.com/valyala/fasthttp v1.31.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
-	golang.org/x/net v0.0.0-20211013171255-e13a2654a71e // indirect
-	golang.org/x/sys v0.0.0-20211013075003-97ac67df715c // indirect
+	golang.org/x/net v0.0.0-20211020060615-d418f374d309 // indirect
+	golang.org/x/sys v0.0.0-20211020174200-9d6173849985 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/ini.v1 v1.63.2 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
