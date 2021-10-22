@@ -107,10 +107,10 @@ func CreateNewAnswer(c *fiber.Ctx) error {
 	}
 
 	// Create new Answer struct
-	answer := &models.Answer{}
+	jsonBody := &models.CreateNewAnswer{}
 
 	// Check, if received JSON data is valid.
-	if err := c.BodyParser(answer); err != nil {
+	if err := c.BodyParser(jsonBody); err != nil {
 		return utilities.CheckForError(c, err, 400, "answer", err.Error())
 	}
 
@@ -121,13 +121,13 @@ func CreateNewAnswer(c *fiber.Ctx) error {
 	}
 
 	// Checking, if project with given ID is exists.
-	foundedProject, status, err := db.GetProjectByID(answer.ProjectID)
+	foundedProject, status, err := db.GetProjectByID(jsonBody.ProjectID)
 	if err != nil {
 		return utilities.CheckForError(c, err, status, "project", err.Error())
 	}
 
 	// Checking, if answer with given ID is exists.
-	foundedTask, status, err := db.GetTaskByID(answer.TaskID)
+	foundedTask, status, err := db.GetTaskByID(jsonBody.TaskID)
 	if err != nil {
 		return utilities.CheckForError(c, err, status, "task", err.Error())
 	}
@@ -135,13 +135,17 @@ func CreateNewAnswer(c *fiber.Ctx) error {
 	// Set user ID from JWT data of current user.
 	userID := claims.UserID
 
+	// Create new Answer struct.
+	answer := &models.Answer{}
+
 	// Set initialized default data for answer:
 	answer.ID = uuid.New()
 	answer.CreatedAt = time.Now()
 	answer.UserID = userID
 	answer.ProjectID = foundedProject.ID
 	answer.TaskID = foundedTask.ID
-	answer.AnswerStatus = 0 // 0 == draft, 1 == active, 2 == blocked
+	answer.AnswerStatus = jsonBody.AnswerStatus // 0 == draft, 1 == active, 2 == unpublished
+	answer.AnswerAttrs = jsonBody.AnswerAttrs
 
 	// Create a new validator for a Answer model.
 	validate := utilities.NewValidator()
