@@ -1,4 +1,4 @@
-.PHONY: clean test security build run
+.PHONY: clean lint security critic test build run
 
 APP_NAME = api
 BUILD_DIR = $(PWD)/build
