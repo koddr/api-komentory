@@ -4,6 +4,7 @@ import (
 	"Komentory/api/pkg/helpers"
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -58,12 +59,17 @@ func DOSpacesConnection() (*minio.Client, error) {
 // UploadFileToCDN func for easily upload given local file to CDN.
 func UploadFileToCDN(minioClient *minio.Client, pathToFile, fileType, userID string) (minio.UploadInfo, error) {
 	// Open the file from system path.
-	file, errOpen := os.Open(filepath.Clean(pathToFile))
+	file, errOpen := os.OpenFile(filepath.Clean(pathToFile), os.O_RDONLY, 0o600)
 	if errOpen != nil {
 		// Return empty info and error message.
 		return minio.UploadInfo{}, errOpen
 	}
-	defer file.Close() // auto close file
+	defer func() {
+		if errClose := file.Close(); errClose != nil {
+			log.Fatal(errClose.Error())
+			return
+		}
+	}()
 
 	// Generate a new file name.
 	newFileName, errGenerateFileName := utilities.GenerateNewNanoID("", 12)
