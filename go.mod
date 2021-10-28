@@ -3,8 +3,8 @@ module Komentory/api
 go 1.17
 
 require (
-	github.com/Komentory/utilities v0.7.4
-	github.com/gofiber/fiber/v2 v2.20.2
+	github.com/Komentory/utilities v0.8.0
+	github.com/gofiber/fiber/v2 v2.21.0
 	github.com/gofiber/helmet/v2 v2.2.3
 	github.com/gofiber/jwt/v2 v2.2.7
 	github.com/google/uuid v1.3.0
@@ -49,7 +49,7 @@ require (
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
 	golang.org/x/net v0.0.0-20211020060615-d418f374d309 // indirect
-	golang.org/x/sys v0.0.0-20211020174200-9d6173849985 // indirect
+	golang.org/x/sys v0.0.0-20211025201205-69cdffdb9359 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/ini.v1 v1.63.2 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
